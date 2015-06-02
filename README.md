@@ -1,4 +1,4 @@
-The overall goal of the CompFinace repository is to carryout comutational finance using R programming language. Analysis is mostly based on a coursera course on computational finance by E.Zivot.
+The overall goal of the CompFinace repository is to use power and flexibility of R programming language in field of computational finance. Analysis is mostly based on a coursera course on computational finance by E.Zivot.
 
 1. Qfinance01.R script reads mothly adjusted closing prices of a asset ("wfc") and plot the data. The goal is to ompute monthly simple and continous compounding returns and  gross returns.
 
