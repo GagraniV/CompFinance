@@ -3,14 +3,18 @@
 #http://faculty.washington.edu/ezivot/econ424/424notes.htm
 ### Background and Goal
 
-The basic assumption for time series data are that varibles are identically distributed but expected to have some dependency between random varibles close togather in time, but not far apart in time. These assumptioon can be explained by stationarity and ergodicity concepts. 
-In a stationary stochastic process, the joint distribution of random variables is time invariant.covarinace stationaly
-The autocovariances and autocorrelations are measures of the linear temporal dependence in a covariance stationary stochastic process, known as autocorrelation function (ACF).
-The autocovariances measure the direction of linear dependence between to varibles, the autocorrelations measure both the direction and
-strength of linear dependence between two varibles.
+The basic assumption for the time series data are that varibles are identically distributed but expected to have some dependency between random varibles close togather in time, but not far apart in time. These assumptioon can be explained by stationarity and ergodicity concepts. 
+
+In a stationary stochastic process, the joint distribution of random variables is time invariant.The autocovariances and autocorrelations are measures of the linear temporal dependence in a covariance stationary stochastic process, known as autocorrelation function (ACF).The autocovariances measure the direction of linear dependence between to varibles, the autocorrelations measure both the direction and strength of linear dependence between two varibles.
+
+In a strictly stationary or covariance stationary stochastic process no assumption is made about the strength of dependence between random variables in the sequence. The strength of dependence between random variables in a stochastic process diminishes the farther apart they become. This diminishing dependence assumption is captured by
+the concept of ergodicity. A stochastic process is ergodic if any two collections of random variables partitioned far apart in the sequence.
+
+An important class of linear time series models is the family of Autoregressive Integrated Moving Average (ARIMA) models, proposed by Box and Jenkins (1976). It assumes that the current value can depend only on the past values of the time series itself or on past values of some error term. Building an ARIMA model consists three steps: 1.Model identification (involves determining the order  that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. diagnostic checking(e.g.,model residuals behave as white noise). (auto.arima)
+
+
 
 options(digits=4, width=70)
-
 
 # simulate Gaussian White Noise, GWN process
 The GWN process doesn't have any predictable pattern over time.
@@ -30,7 +34,6 @@ ts.plot(y,main="GWN Process for Monthly Continuously Compounded Returns",
 abline(h=c(0,-0.05,0.05), lwd=2, lty=c("solid","dotted","dotted"), 
        col=c("black", "red", "red"))
        
-
 
 # simultate deterministically trending process
 # The process is nonstationary becuase it depends on t. It can be transformed into a stationary process by simply subtracting off the trend.
@@ -52,12 +55,8 @@ abline(h=0)
 
 # simulate MA(1) process with theta 0.9 and e(t) ~ N(0,1)
 
-#In a strictly stationary or covariance stationary stochastic process no assumption is made about the strength of dependence between random variables in
-the sequence. The strength of dependence between random variables in a stochastic process diminishes the farther apart they become. This diminishing dependence assumption is captured by
-the concept of ergodicity. A stochastic process is ergodic if any two collections of random variables partitioned far apart in the sequence are essentially independent.
 
-Moving average models are simple covariance stationary and ergodic time series models that can capture a wide variety of autocorrelation patterns. To create a covariance stationary and ergodic stochastic
-process in which Yt and Yt−1 are correlated but Yt and Yt−j are not correlated for j>1 That is, the time dependence in the process only lasts for one period. Such a process can be created using the first order moving
+Moving average models are simple covariance stationary and ergodic time series models that can capture a wide variety of autocorrelation patterns. To create a covariance stationary and ergodic stochastic process in which Yt and Yt−1 are correlated but Yt and Yt−j are not correlated for j>1 That is, the time dependence in the process only lasts for one period. Such a process can be created using the first order moving
 average (MA(1)) model. The moving average parameter, theta determines the sign and magnitude of the correlation between Yt and Yt−1 Clearly, if theta = 0 then Yt exhibits no time dependence.
 
 #theta =0.9
