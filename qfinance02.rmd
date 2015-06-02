@@ -11,6 +11,11 @@ output:
   beamer_presentation: default
 ---
 
+## Background and Objective
+
+The Constant Expected Return Model or CER is a very simple asset return model can be represented as simple regression model(CER=Mean+Error). The main assumption is that the asset return is independent and normally distributed over time with a constant mean, variance, covariance, and correlation. Expected return is constant with a normally distributed error term or unexpected news of mean zero and constant variance.
+ 
+For the logarithm of asset prices, the CER model is represented as Random Walk Model or RWM. In addition to the expected return and unexpected news, RWM includes unexpected change in the log-price, which is uncorrelated over time. However, change in log-prices is a non-stationary process because variance increases with time t.
 
 ```{r Set_ChunkOptions, echo=FALSE}
 #Select Chunk and package options @ http://yihui.name/knitr/options
