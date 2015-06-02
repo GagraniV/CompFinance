@@ -13,9 +13,11 @@ output:
 
 ## Background and Objective
 
-The Constant Expected Return Model or CER is a very simple asset return model can be represented as simple regression model(CER=Mean+Error). The main assumption is that the asset return is independent and normally distributed over time with a constant mean, variance, covariance, and correlation. Expected return is constant with a normally distributed error term or unexpected news of mean zero and constant variance.
+The Constant Expected Return Model or CER is a very simple asset return model can be represented as a simple regression model(CER=Mean+Error). The main assumption is that the asset return is independent and normally distributed over time with a constant mean, variance, covariance, and correlation. Expected return is constant with a normally distributed error term or unexpected news of mean zero and constant variance.
  
-For the logarithm of asset prices, the CER model is represented as Random Walk Model or RWM. In addition to the expected return and unexpected news, RWM includes unexpected change in the log-price, which is uncorrelated over time. However, change in log-prices is a non-stationary process because variance increases with time t.
+For the logarithm of asset prices, the CER model is represented as Random Walk Model or RWM. In addition to the expected return and unexpected news, RWM includes unexpected change in the log-price, which is uncorrelated over time. The change in log-prices is a non-stationary process because variance increases with time t.
+
+http://faculty.washington.edu/ezivot/econ424/constantexpectedreturn.pdf
 
 ```{r Set_ChunkOptions, echo=FALSE}
 #Select Chunk and package options @ http://yihui.name/knitr/options
@@ -25,8 +27,10 @@ knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='cen
 
 ## Mean, Variance, Standard Deviation, Skewness, and Kurtosis for the four assests
 ---
-Sk:tail thickness
-kr:
+Kurtosis: it measures tail thickness(Leptokurtosis or postive Kr: heavier tails, more concentrted around mean,with thinner flanks, and outlier prone distribution; Platykurtosis or negative Kr:Data points are less heavily concentrated around the mean,tails are also lighter than normal distribution, heavier flanks (looks like a disk)).
+Skewness:It measures the asymmetry of the distribution. The direction of skewness is the direction to which the data is trailing off.
+Normal probability plot: It is a visual method for determining whether or not data comes from a distribution that is approximately normal. The vertical axis represents the actual data values, and the horizontal axis displays the expected percentiles from a standard normal distribution. The normal reference line along the diagonal is where the data would fall if it were perfectly normal. 
+
 
 ```{r Initial_Settings_n_Basic_Stat}
 #set working directory
@@ -66,7 +70,7 @@ apply(prices_mat[2:5],2, kurtosis)
 ## Monthly Price, Log monthly Price, and Continous Compounding Return Plots
 ---
 Continous Componding, cc means that the principal is constsantly earning interest, and the interest keeps earning interest.
-The cc provides marvelous computaional adavantages(rc=ln(1+r)).Using the natural log and exponstial funcations, it  is easy to scale forward and discounting, scaling over multiple periods, and time consitent. 
+The cc provides marvelous computaional adavantages(rc=ln(1+r)).Using the natural log and exponstial funcations, it  is easy to scale forward and discounting, scaling over multiple periods, as well as its time consitent. 
 
 ```{r Intial_Plots, echo=FALSE}
 # create cc returns from montly prices
@@ -128,9 +132,10 @@ par(mfrow=c(1,1))
 
 ```
 
-## simulate random walk model (RWM) with initial log price = 1(wfc)
+## Simulate random walk model (RWM) with initial log price = 1(wfc)
 ---
-The RWM model for log prices, mean: reprsents the expected change in the log prices between months t-1 and t; error term: represents the unexpected change in the log price.
+The RWM model for log prices, mean: reprsents the expected change in the log prices between months t-1 and t; 
+error term: represents the unexpected change in the log price.
 The figure shows the simulated values for log-price based on RW model. The top panel shows the simulated price (sim_pe,p(t), blue color), the expected log price ((1+mu*seq(nobs),E[p(t)], dotted), and the accumulated random news (cumsum(sim_e),p(t)-E[p(t)], orange color). The bottom panel shows the simulated price levels (exp(sim_p),green color).
 
 ```{r}
@@ -159,7 +164,7 @@ par(mfrow=c(1,1))
 
 ---
 
-##Plot returns on all assests.
+### Plot returns on all assests
 
 ```{r}
 
@@ -208,18 +213,12 @@ covhat_vals
 rhohat_vals
 ```
 
-##Compute estimated standard deviation (SD) or standard error (SE) and 95% confidence intervals for mean,var, sd, and correlation.
+###Compute estimated standard deviation (SD) or standard error (SE) and 95% confidence intervals for mean,var, sd, and correlation
 ---
 Standard Error:
-1. Standard error (SE) is the standard deviation of the sampling distribution of a statistic, most commonly of the mean.
-SEM: The sample mean is the usual estimator of a population mean,however different samples drawn from that same population would in general have different values of the sample mean, so there is a distribution of sampled means.
-2 SEM is the standard deviation of those sample means over all possible samples drawn from the population. 
-3. SEM can refer to an estimate of that standard deviation, computed from the sample of data being analyzed at the time.
-4. SEM is usually estimated by the sample estimate of the population standard deviation (sample standard deviation) divided by the square root of the sample size.
-5. In regression analysis, the term "sd" is used in the phrase standard error of the regression to mean the ordinary least squares estimate of the standard deviation of the underlying errors.
+Standard error (SE) is the standard deviation of the sampling distribution of a statistic, most commonly of the mean. The sample mean is the usual estimator of a population mean,however different samples drawn from that same population would in general have different values of the sample mean, so there is a distribution of sampled means (SEM). It is the standard deviation of those sample means over all possible samples drawn from the population. SEM is also refers to an estimate of that standard deviation, computed from the sample of data being analyzed at the time. SEM is usually estimated by the sample estimate of the population standard deviation (sample standard deviation) divided by the square root of the sample size. In regression analysis, the term "sd" is used in the phrase standard error of the regression to mean the ordinary least squares estimate of the standard deviation of the underlying errors.
 
-Confidence Interval: It is an interval estimate of mean to put an probability statment about the likelyhood that the interval covers the mean.
-(http://spark-public.s3.amazonaws.com/compfinance/Lecture%20Notes/cermodelslides.pdf).
+Confidence Interval: It is an interval estimate of mean to put an probability statment about the likelyhood that the interval covers the mean(http://spark-public.s3.amazonaws.com/compfinance/Lecture%20Notes/cermodelslides.pdf).
 
 Generally SE of a population is approximated using the Gaussian sample distribution, t-student distribution. T-distribution is highly dependent on sample size, and it use to calculate confidence intervals. Since the data are assumed to be normally distributed, quantiles of the normal distribution and the sample mean and standard error can be used to calculate approximate confidence intervals for the mean. In this example t.975 is the +-95% confidence limit for 1.96 sd of the normal distribution.
 
@@ -349,7 +348,7 @@ par(mfrow=c(1,1))
 
 ```
 
-###Simulate data for three asset returns
+### Simulate data for more than one asset returns. 
 
 ```{r}
 
