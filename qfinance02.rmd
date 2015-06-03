@@ -163,7 +163,7 @@ par(mfrow=c(1,1))
 
 ---
 
-### Plot returns on all assests
+## Plot returns on all assests
 
 ```{r}
 
@@ -187,7 +187,7 @@ pairs(returns_lcc_m, col="blue")
 
 ```
 
-##estimate parameters (i.e., mean, variance, standard deviation, covariance, correlation) from the CER model
+## Estimate parameters (i.e., mean, variance, standard deviation, covariance, correlation) from the CER model
 ---
 Covariance matrix generalizes the notion of variance to multiple dimensions. The variances appear along the diagonal and covariances appear in the off-diagonal elements. The inverse of covariance matrix, is the inverse covariance matrix, also known as the concentration matrix or precision matrix. The elements of the precision matrix have an interpretation in terms of partial correlations and partial variances.
 
@@ -212,7 +212,7 @@ covhat_vals
 rhohat_vals
 ```
 
-###Compute estimated standard deviation (SD) or standard error (SE) and 95% confidence intervals for mean,var, sd, and correlation
+## Compute estimated standard deviation (SD) or standard error (SE) and 95% confidence intervals for mean,var, sd, and correlation
 ---
 Standard Error:
 Standard error (SE) is the standard deviation of the sampling distribution of a statistic, most commonly of the mean. The sample mean is the usual estimator of a population mean,however different samples drawn from that same population would in general have different values of the sample mean, so there is a distribution of sampled means (SEM). It is the standard deviation of those sample means over all possible samples drawn from the population. SEM is also refers to an estimate of that standard deviation, computed from the sample of data being analyzed at the time. SEM is usually estimated by the sample estimate of the population standard deviation (sample standard deviation) divided by the square root of the sample size. In regression analysis, the term "sd" is used in the phrase standard error of the regression to mean the ordinary least squares estimate of the standard deviation of the underlying errors.
@@ -264,7 +264,7 @@ cbind(rho_lower,rho_upper,rho_width)
 
 ```
 
-### Monte Carlo evaluation of unbiasedness
+## Monte Carlo evaluation of unbiasedness
 ---
 In monte Carlo simulation,samples are derived from a random sample of size n for sampling distribution of statistic such as mean, sd, variance, confidence interval. Monte Carlo is also considered as the distribution of the statistic for all possible samples from the same population of a given size.
 
@@ -301,7 +301,7 @@ lines(x_vals, dnorm(x_vals, mean=mu, sd=sd/sqrt(100)), col="orange", lwd=2)
 
 ```
 
-### Compute expected value of estimates and bias for mean, variance, and SD
+## Compute expected value of estimates and bias for mean, variance, and SD
 
 
 ```{r}
@@ -346,7 +346,7 @@ par(mfrow=c(1,1))
 
 ```
 
-### Simulate data for more than one asset returns 
+## Simulate data for more than one asset returns 
 
 ```{r}
 
@@ -377,7 +377,7 @@ pairs(returns_lcc_m)
 
 ```
 
-#### generate 1000 samples from CER and compute correlations
+## Generate 1000 samples from CER and compute correlations
 
 ```{r}
 
@@ -418,7 +418,7 @@ par(mfrow=c(3,2))
 par(mfrow=c(1,1))
 ```
 
-### Compute rolling mean and SD values: using rolling functions from zoo
+## Compute rolling mean and SD values: using rolling functions from zoo
 
 ```{r}
 
@@ -458,7 +458,7 @@ abline(h=muhat.vals["msft"])
 
 ```
 
-### Estimate Quantiles and VaR from CER model
+## Estimate Quantiles and VaR from CER model
 
 ```{r}
 
