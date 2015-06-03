@@ -423,38 +423,37 @@ par(mfrow=c(1,1))
 ```{r}
 
 #
-class(returns.z)
-colIds(returns.z)
-start(returns.z)
-end(returns.z)
+class(returns_lcc)
+colIds(returns_lcc)
+start(returns_lcc)
+end(returns_lcc)
 
-MSFT.z = returns.z[,"msft"]
-class(MSFT.z)
-plot(MSFT.z,reference.grid=F)
+wfc_lcc= returns_lcc[,"wfc"]
+class(wfc_lcc)
+plot(wfc_lcc,reference.grid=F)
 
 
 # compute rolling means of width 24 months 
-roll.mean.24 = aggregateSeries(MSFT.z,moving=23,adj=1,FUN=mean)
-roll.mean.24
-plot(roll.mean.24,reference.grid=F,
+roll_mean_24 = aggregateSeries(wfc_lcc,moving=23,adj=1,FUN=mean)
+roll_mean_24
+plot(roll_mean_24,reference.grid=F,
      main="Rolling 24 month mean estimates")
-abline(h=muhat.vals["msft"])
+abline(h=muhat_vals["wfc"])
 
-plot(roll.mean.24,MSFT.z,reference.grid=F,
-     main="MSFT returns and rolling 24 month means")
-abline(h=muhat.vals["msft"])
+plot(roll_mean_24,wfc_lcc,reference.grid=F,
+     main="WFC returns and rolling 24 month means")
+abline(h=muhat_vals["wfc"])
 
 # compute rolling sds of width 24 months 
-roll.sd.24 = aggregateSeries(MSFT.z,moving=23,adj=1,FUN=sd)
-roll.sd.24
-plot(roll.sd.24,reference.grid=F,
+roll_sd_24 = aggregateSeries(wfc_lcc,moving=23,adj=1,FUN=sd)
+roll_sd_24
+plot(roll_sd_24,reference.grid=F,
      main="Rolling 24 month SD estimates")
-abline(h=sigmahat.vals["msft"])
+abline(h=sigmahat_vals["wfc"])
 
-plot(roll.sd.24,MSFT.z,reference.grid=F,
-     main="MSFT returns and rolling 24 month sds")
-abline(h=muhat.vals["msft"])
-
+plot(roll_sd_24,wfc_lcc,reference.grid=F,
+     main="WFC returns and rolling 24 month sds")
+abline(h=muhat_vals["wfc"])
 
 ```
 
@@ -464,21 +463,21 @@ abline(h=muhat.vals["msft"])
 
 # use R function qnorm to compute quantiles from standard normal distribution
 args(qnorm)
-qhat.05 = muhat.vals + sigmahat.vals*qnorm(0.05)
-qhat.05
-qnorm(0.05,muhat.vals,sigmahat.vals)
+qhat_05 = muhat_vals + sigmahat_vals*qnorm(0.05)
+qhat_05
+qnorm(0.05,muhat_vals,sigmahat_vals)
 
 W0 = 100000
-VaRhat.05 = (exp(qhat.05)-1)*W0
+VaRhat_05 = (exp(qhat_05)-1)*W0
 VaRhat.05
 
-# VaR example from slides
+# Other vVaR example 
 muhat = 0.02
 sigmahat = 0.10
-qhat.05 = muhat + sigmahat*qnorm(0.05)
+qhat_05 = muhat + sigmahat*qnorm(0.05)
 W0 = 10000
-VaRhat.05 = (exp(qhat.05)-1)*W0
-VaRhat.05
+VaRhat_05 = (exp(qhat_05)-1)*W0
+VaRhat_05
 
 ```
 
