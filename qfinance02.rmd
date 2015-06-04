@@ -421,6 +421,8 @@ par(mfrow=c(1,1))
 ```
 
 ## Compute rolling mean and SD values: using rolling functions from zoo
+---
+Rolling analysis of mean and SD is very important in finacial time series data to support the key assumption that the model parameters are constant over time. In this technique, model parametrs are computed over a rolling window of a fixed time. It is a tool to backtest statistical models on historical data to evaluate stability and predictive accuracy.
 
 ```{r}
 
@@ -461,10 +463,12 @@ abline(h=muhat_vals["wfc"])
 
 ## Estimate Quantiles and VaR from CER model
 
+---
+Value at Risk or VaR comprises three sections : 1) time period,2) confidence level, and 3) loss amount or percentage.
+http://www.investopedia.com/articles/04/092904.asp
 ```{r}
 
 # use R function qnorm to compute quantiles from standard normal distribution
-args(qnorm)
 qhat_05 = muhat_vals + sigmahat_vals*qnorm(0.05)
 qhat_05
 qnorm(0.05,muhat_vals,sigmahat_vals)
@@ -483,7 +487,8 @@ VaRhat_05
 
 ```
 ## Bootstrapping in CER model
-
+---
+Boothstrapping is a resampling tchnique can be used to generate SE and confidence intervals without using the analytical formulas. This method doesnt need normally distrbuted data of a relatively large sample size. Hence it is widely used in CER model or VaR.
 ```{r}
 # plot prices and returns for wfc
 par(mfrow=c(2,1))
@@ -631,6 +636,10 @@ plot(wfc_VaR_boot)
 
 ```
 ## Hypothesis testing in CER model
+
+---
+Hypothesis test is a mathematical model for testing a claim, idea or hypothesis about a parameter of interest in a given population. It starts by stating and assuming the “Null Hypothesis”, and then the process determines whether the assumption is likely to be true or false. Alternative hypothesis is a direct contradiction of the null hypothesis. For a normal distribution, 95% of the values lie within 2 standard deviations of the population mean. Hence, this normal distribution and central limit assumption for the sample dataset allows us to establish 5% as a significance level. Depending upon the nature of datasets, other significance levels can be taken at 1%, 5% or 10%. If we find any calculations that go beyond the usual 2 sd, then we have a strong case of outliers to reject the null hypothesis. There can be two type of erros: Type1 or alpha: selecting the correct critical value allows eliminating the type-1 alpha errors or limiting them to an acceptable range. When the probability of a Type I error is less than 5% (p < 0.05), we decide to reject the null hypothesis; otherwise, we retain the null hypothesis. Type2 or beta:The probability of incorrectly retaining the null hypothesis, when in fact it is not applicable to the entire population.
+P(identify a Type I alpha error) = P(reject H0 given that H0 is true).  http://www.investopedia.com
 
 ```{r}
 # chi-square distribution
