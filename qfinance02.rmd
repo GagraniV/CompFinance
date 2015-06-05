@@ -439,8 +439,8 @@ class(wfc_lcc)
 plot(wfc_lcc,reference.grid=F)
 
 
-# compute rolling means of width 24 months 
-roll_mean_24 = aggregateSeries(wfc_lcc,moving=23,adj=1,FUN=mean)
+# compute rolling means of width 24 months
+roll_mean_24 = rollapply(wfc_lcc, width=24,FUN=mean, align="right")
 roll_mean_24
 plot(roll_mean_24,reference.grid=F,
      main="Rolling 24 month mean estimates")
@@ -451,7 +451,7 @@ plot(roll_mean_24,wfc_lcc,reference.grid=F,
 abline(h=muhat_vals["wfc"])
 
 # compute rolling sds of width 24 months 
-roll_sd_24 = aggregateSeries(wfc_lcc,moving=23,adj=1,FUN=sd)
+roll_sd_24 = rollapply(wfc_lcc, width=24,FUN=sd, align="right")
 roll_sd_24
 plot(roll_sd_24,reference.grid=F,
      main="Rolling 24 month SD estimates")
@@ -490,7 +490,7 @@ VaRhat_05
 ```
 ## Bootstrapping in CER model
 ---
-Boothstrapping is a resampling tchnique can be used to generate SE and confidence intervals without using the analytical formulas. This method doesnt need normally distrbuted data of a relatively large sample size. Hence it is widely used in CER model or VaR.
+Boothstrapping is a resampling tchnique can be used to generate SE and confidence intervals without using the analytical formulas. Resamples are created by sampling with replacement. It accumulate the results and calculate sample distrbution of the statistcs. This method doesn't need normally distrbuted data of a relatively large sample size. Hence it is widely used in CER model or VaR.
 ```{r}
 # plot prices and returns for wfc
 par(mfrow=c(2,1))
@@ -503,18 +503,21 @@ plot(returns_lcc[,"wfc"],ylab="cc return",
      main="Monthly cc returns on WFC",
      col="blue", lwd=2)
 abline(h=0)
+
 # brute force bootstrap: wfc mean
 muhat_wfc <- mean(wfc_ret)
 sigmahat_wfc <- sd(wfc_ret)
 se_muhat_wfc <- sigmahat_wfc/sqrt(length(wfc_ret))
 rbind(muhat_wfc, se_muhat_wfc)
+
 #why 999
-B <- 999
+#http://stackoverflow.com/questions/20846814/extract-time-in-getsymbols
+B <- as.numeric(999)
 muhat_boot<- rep(0, B)
 nobs <- length(wfc_ret)
 for (i in 1:B) {
-  boot_data <- sample(wfc_ret, nobs, replace=TRUE)
-  muhat_boot[i] <- mean(boot_data)
+boot_data <- sample(wfc_ret, nobs, replace=TRUE)
+muhat_boot[i] <- mean(boot_data)
 }
 
 # bootstrap bias
@@ -530,13 +533,24 @@ abline(v=muhat_wfc, col="white", lwd=2)
 qqnorm(muhat_boot)
 qqline(muhat_boot)
 par(mfrow=c(1,1))
-# Boot mean estimates using R boot package function boot().  Boot requires user-supplied functions that take two arguments: data and an index. The index is created by the boot function and represents random resampling with replacement.
 
-wfc_mean_boot = boot(wfc_ret, statistic = mean_boot, R=999)
+# Boot mean estimates using R boot package function boot().  Boot requires user-supplied functions that take two arguments: data and an index. The index is created by the boot function and represents random resampling with replacement.  The R package boot calls the estimation function repeatedly (equal to bootstrap replication, R=999). Each time, the data will be the same (wfc_ret), but the bootstrap sample supplied using an integer vector of indexes will be different.
+
+http://www.mayin.org/ajayshah/KB/R/documents/boot.html
+#x <-wfc_ret 
+#idx <- sample(1:99, replace=TRUE)
+idx <- rep(1:99)
+
+mean_boot = function(x, idx) {
+     ans = mean(x[idx])
+     ans
+}
+
+wfc_mean_boot = boot(x=wfc_ret, statistic = mean_boot, R=999)
 class(wfc_mean_boot)
 names(wfc_mean_boot)
 # compare boot SE with analytic SE
-se_muhat_wfc = sigmahat_wfc/sqrt(length(wfc))
+se_muhat_wfc = sigmahat_wfc/sqrt(length(wfc_ret))
 se_muhat_wfc
 # plot bootstrap distribution and qq-plot against normal
 plot(wfc_mean_boot)
@@ -861,8 +875,7 @@ abline(h=0)
 1: In zoo(rval[i], index(x)[i]) :
   some methods for “zoo” objects do not work if the index entries in ‘order.by’ are not unique
 
-Error in positions(x) : 
-  trying to get slot "positions" from an object (class "zoo") that is not an S4 object 
+ 
 
 
 
