@@ -1,10 +1,12 @@
 # introductionToPortfolioTheory_r
-#
-# Examples used in Introduction to Portfolio Theory Chapter
 
 options(digits=4, width=70)
 library("PerformanceAnalytics")
+---
+The expected returns(average) are the best guesses for the monthly returns, however returns are random varibles therefore realized returns may be diffrent from our expectations. Variance provides a measure towards uncertain monthly returns, hence considered as a risk measurment tool. All wealth is exhoused between asset A and B. Monthly return is a linear combination or weighted average of the two returns.
+```{r}
 
+```
 ################################################################################
 # 2 asset example
 ################################################################################
@@ -54,17 +56,7 @@ x_A*VaR_A + x_B*VaR_B
 
 # function to compute normal VaR
 normalVaR <- function(mu, sigma, w0, tail_prob = 0.01, invert=FALSE) {
-## compute normal VaR for collection of assets given mean and sd vector
-## inputs:
-## mu         n x 1 vector of expected returns
-## sigma      n x 1 vector of standard deviations
-## w0         scalar initial investment in $
-## tail_prob  scalar tail probability
-## invert     logical_ If TRUE report VaR as positive number
-## output:
-## VaR        n x 1 vector of left tail return quantiles
-## References:
-## Jorian (2007) pg 111_
+
   if ( length(mu) != length(sigma) )
     stop("mu and sigma must have same number of elements")
   if ( tail_prob < 0 || tail_prob > 1)
@@ -80,11 +72,17 @@ normalVaR <- function(mu, sigma, w0, tail_prob = 0.01, invert=FALSE) {
 
 normalVaR(mu=c(mu_A, mu_B, mu_p1),
           sigma=c(sig_A, sig_B, sig_p1),
-          w0=100000, tail_prob=0_05) 
-  
-################################################################################
-# efficient portfolios
-################################################################################
+          w0=100000, tail_prob=0.05) 
+
+### mean-variance efficient portfolios
+---
+Efficent portfolios have the highest expected return for a given level of risk.
+Assumptions: Returns are covariance stationary and ergodic, jointly normally distrbuted means means, variances, and covariances of returns are constant over the investment horizon.
+#For a given level of risk, combinations that are in the upper left conrner are the best (efficent portfolios) and those in the lower right corner(inefficent portfolios) are the worst portfolios. portfolio at the bottom of the parabola has the smallest variance among all fesiable protfolio and called global minimum variance portfolio. 
+
+
+```{r}
+```
 
 x_A = seq(from=-0.4, to=1.4, by=0.1)
 x_B = 1 - x_A
@@ -93,6 +91,8 @@ sig2_p = x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB
 sig_p = sqrt(sig2_p)
 
 # minimum variance portfolio
+# global minmum protfolio: Lagrange multipliers
+
 xA_min = (sig2_B - sig_AB)/(sig2_A + sig2_B - 2*sig_AB)
 xB_min = 1 - xA_min
 xA_min
@@ -113,9 +113,9 @@ text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
 text(x=sig_B, y=mu_B, labels="Asset B", pos=4, cex = cex_val)
 text(x=sig_p_min, y=mu_p_min, labels="Global min", pos=2, cex = cex_val)
 
-#
+
 # portfolio frontier with varying values of rho
-#
+# The shape of the investment possibilities set is senstive to the correlation between assessts.
 rho_AB_vals = c(-0.9,-0.5, -0.25, 0, 0.25, 0.5, 0.9)
 x_A = seq(from=-0.4, to=1.4, by=0.1)
 x_B = 1 - x_A
@@ -189,8 +189,8 @@ text(x=sig_p[3], y=mu_p[11], labels="Efficient portfolio",
 
 #
 # portfolios with 1 risky asset and T-Bills
-#
-
+# Since the risk free rate fixed over the investment horizon. excess return over thr T-bills
+ or risk premimum. Capital allocation line(CAL). The slope of CAl is called sharpe ration(SR).
 r_f = 0.03
 # T-bills + asset A
 x_A = seq(from=0, to=1.4, by=0.1)
