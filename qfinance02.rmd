@@ -43,6 +43,7 @@ library("tseries")
 library("plyr")
 library("mvtnorm")
 library("splusTimeSeries")
+library("boot")
 
 
 ## Monthly Adjusted closing prices are downloaded from yahoo finace for SP500,AAPL,VBLX, and WFC from Febuary 1994 to April 2015 and saved as .csv files.
@@ -59,6 +60,7 @@ colnames(VBLTX_prices)[colnames(VBLTX_prices)=="AdjClose"] <- "vbltx"
 colnames(WFC_prices)[colnames(WFC_prices)=="AdjClose"] <- "wfc"
 # create merged price data
 prices <- join_all(list(VBLTX_prices, SP500_prices, AAPL_prices, WFC_prices), by = 'Index')
+
 #coredata is a generic functions for extracting the core data contained in a (more complex) object and replacing it.
 prices_mat = coredata(prices)
 ## Mean, Variance, Standard Deviation, Skewness, and Kurtosis for the four assests
@@ -77,10 +79,13 @@ The cc provides marvelous computaional adavantages(rc=ln(1+r)).Using the natural
 
 ```{r Intial_Plots, echo=FALSE}
 # create cc returns from montly prices
+
 returns <- log(prices_mat[2:5])
 returns <- as.zoo(returns)
 returns_lcc <- diff(returns)
+returns_lcc<-as.zoo(returns_lcc)
 
+## solution to the error message,"Error in plot.new() : figure margins too large"
 par <- par("mar")
 #par(mar=c(1,1,1,1))
 # plot prices and returns for Microsoft
@@ -396,7 +401,7 @@ colnames(sim_corrs) <-c("sp500,vbltx","aapl,vbltx","wfc,vlltx","aapl,sp500","wfc
 for (sim in 1:n_sim) {
   sim_ret = rmvnorm(n_obs,mean=muhat_vals,sigma=cov_mat)
   cor_mat = cor(sim_ret)
-	sim_corrs[sim,] = cor_mat[lower.tri(cor_mat)]
+  sim_corrs[sim,] = cor_mat[lower.tri(cor_mat)]
 }
 
 par(mfrow=c(3,2))
@@ -423,7 +428,9 @@ par(mfrow=c(1,1))
 ```
 
 ## Compute rolling mean and SD values: using rolling functions from zoo
+
 ---
+
 Rolling analysis of mean and SD is very important in finacial time series data to support the key assumption that the model parameters are constant over time. In this technique, model parametrs are computed over a rolling window of a fixed time. It is a tool to backtest statistical models on historical data to evaluate stability and predictive accuracy.
 
 ```{r}
@@ -436,38 +443,41 @@ end(returns_lcc)
 
 wfc_lcc= returns_lcc[,"wfc"]
 class(wfc_lcc)
-plot(wfc_lcc,reference.grid=F)
+plot(wfc_lcc)
 
 
 # compute rolling means of width 24 months
 roll_mean_24 = rollapply(wfc_lcc, width=24,FUN=mean, align="right")
 roll_mean_24
-plot(roll_mean_24,reference.grid=F,
-     main="Rolling 24 month mean estimates")
+plot(roll_mean_24,main="Rolling 24 month mean estimates")
 abline(h=muhat_vals["wfc"])
 
-plot(roll_mean_24,wfc_lcc,reference.grid=F,
-     main="WFC returns and rolling 24 month means")
+plot(roll_mean_24, main="WFC returns and rolling 24 month means", col="red")
+points(wfc_lcc, col="green",ylim=range(wfc_lcc))
 abline(h=muhat_vals["wfc"])
 
 # compute rolling sds of width 24 months 
 roll_sd_24 = rollapply(wfc_lcc, width=24,FUN=sd, align="right")
 roll_sd_24
-plot(roll_sd_24,reference.grid=F,
-     main="Rolling 24 month SD estimates")
+plot(roll_sd_24, main="Rolling 24 month SD estimates")
 abline(h=sigmahat_vals["wfc"])
 
-plot(roll_sd_24,wfc_lcc,reference.grid=F,
-     main="WFC returns and rolling 24 month sds")
+plot(roll_sd_24,wfc_lcc,main="WFC returns and rolling 24 month sds")
 abline(h=muhat_vals["wfc"])
 
+plot(roll_sd_24, main="WFC returns and rolling  24 month sds", col="red")
+points(wfc_lcc, col="green",ylim=range(wfc_lcc))
+abline(h=muhat_vals["wfc"])
+abline(h=sigmahat_vals["wfc"])
 ```
 
-## Estimate Quantiles and VaR from CER model
+##Estimate Quantiles and VaR from CER model
 
 ---
+
 Value at Risk or VaR comprises three sections : 1) time period,2) confidence level, and 3) loss amount or percentage.
 http://www.investopedia.com/articles/04/092904.asp
+
 ```{r}
 
 # use R function qnorm to compute quantiles from standard normal distribution
@@ -488,69 +498,75 @@ VaRhat_05 = (exp(qhat_05)-1)*W0
 VaRhat_05
 
 ```
+
 ## Bootstrapping in CER model
 ---
+
 Boothstrapping is a resampling tchnique can be used to generate SE and confidence intervals without using the analytical formulas. Resamples are created by sampling with replacement. It accumulate the results and calculate sample distrbution of the statistcs. This method doesn't need normally distrbuted data of a relatively large sample size. Hence it is widely used in CER model or VaR.
+
 ```{r}
+
+prices0<-prices
+prices0$Index<-NULL
+prices0 = zooreg(data=as.matrix(prices0), start=c(1994,02), end=c(2015,04),frequency=12)
+index(prices0) = as.yearmon(index(prices0))
+
+prices0 = as.zoo(prices0)
+                      
+colnames(prices0)
+start(prices0)
+end(prices0)
+
+returns_lcc0 = diff(log(prices0))
+colnames(returns_lcc0)
+start(returns_lcc0)
+end(returns_lcc0)
+
+returns_lcc0 = coredata(returns_lcc0)
+wfc_ret0 = returns_lcc0[,"wfc"]
+aapl_ret0 = returns_lcc0[,"aapl"]
+sp500_ret0 = returns_lcc0[,"sp500"]
+
+# compute estimates of mu, sigma for MSFT and rho for MSFT and SP500
+#
+muhat_wfc = mean(wfc_ret0)
+sigmahat_wfc = sd(wfc_ret0)
+rhohat_wfc_SP500 = cor(returns_lcc0[,c("wfc","sp500")])
+muhat_wfc
+sigmahat_wfc
+rhohat_wfc_SP500
+
 # plot prices and returns for wfc
 par(mfrow=c(2,1))
-	plot(prices_mat[,"wfc"], col="blue", lwd=2, ylab="price",
+
+  plot(prices_mat[,"wfc"], col="blue", lwd=2, ylab="price",
 	main="Monthly Prices on WFC")
-	plot(log(prices_mat[,"wfc"]),col="blue", lwd=2, ylab="log price")
+	plot(log(prices_mat[,"wfc"]),col="green", lwd=2, ylab="log price")
 par(mfrow=c(1,1))
 
-plot(returns_lcc[,"wfc"],ylab="cc return",
+plot(returns_lcc0[,"wfc"],ylab="cc return",
      main="Monthly cc returns on WFC",
      col="blue", lwd=2)
 abline(h=0)
 
 # brute force bootstrap: wfc mean
-muhat_wfc <- mean(wfc_ret)
-sigmahat_wfc <- sd(wfc_ret)
-se_muhat_wfc <- sigmahat_wfc/sqrt(length(wfc_ret))
+muhat_wfc <- mean(wfc_ret0)
+sigmahat_wfc <- sd(wfc_ret0)
+se_muhat_wfc <- sigmahat_wfc/sqrt(length(wfc_ret0))
 rbind(muhat_wfc, se_muhat_wfc)
 
-#why 999
-#http://stackoverflow.com/questions/20846814/extract-time-in-getsymbols
-B <- as.numeric(999)
-muhat_boot<- rep(0, B)
-nobs <- length(wfc_ret)
-for (i in 1:B) {
-boot_data <- sample(wfc_ret, nobs, replace=TRUE)
-muhat_boot[i] <- mean(boot_data)
-}
-
-# bootstrap bias
-mean(muhat_boot) - muhat_wfc
-# bootstrap SE
-sd(muhat_boot)
-# analytic SE
-sigmahat_wfc/sqrt(length(wfc_ret))
-
-par(mfrow=c(1,2))
-hist(muhat_boot, col="slateblue1")
-abline(v=muhat_wfc, col="white", lwd=2)
-qqnorm(muhat_boot)
-qqline(muhat_boot)
-par(mfrow=c(1,1))
-
-# Boot mean estimates using R boot package function boot().  Boot requires user-supplied functions that take two arguments: data and an index. The index is created by the boot function and represents random resampling with replacement.  The R package boot calls the estimation function repeatedly (equal to bootstrap replication, R=999). Each time, the data will be the same (wfc_ret), but the bootstrap sample supplied using an integer vector of indexes will be different.
-
-http://www.mayin.org/ajayshah/KB/R/documents/boot.html
-#x <-wfc_ret 
-#idx <- sample(1:99, replace=TRUE)
-idx <- rep(1:99)
+# Boot mean estimates using R boot package function boot().  Boot requires user-supplied functions that take two arguments: data and an index. The index is created by the boot function and represents random resampling with replacement.  The R package boot calls the estimation function repeatedly (equal to bootstrap replication, R=999). Each time, the data will be the same (wfc_ret), but the bootstrap sample supplied using an integer vector of indexes will be different.http://www.mayin.org/ajayshah/KB/R/documents/boot.html
 
 mean_boot = function(x, idx) {
      ans = mean(x[idx])
      ans
 }
 
-wfc_mean_boot = boot(x=wfc_ret, statistic = mean_boot, R=999)
+wfc_mean_boot = boot(wfc_ret0, statistic = mean_boot, R=999)
 class(wfc_mean_boot)
 names(wfc_mean_boot)
 # compare boot SE with analytic SE
-se_muhat_wfc = sigmahat_wfc/sqrt(length(wfc_ret))
+se_muhat_wfc = sigmahat_wfc/sqrt(length(wfc_ret0))
 se_muhat_wfc
 # plot bootstrap distribution and qq-plot against normal
 plot(wfc_mean_boot)
@@ -562,7 +578,7 @@ boot.ci(wfc_mean_boot, conf = 0.95, type = c("norm","perc"))
 # compare boot confidence intervals with analytic confidence interval
 wfc_lower = muhat_wfc - 2*se_muhat_wfc
 wfc_upper = muhat_wfc + 2*se_muhat_wfc
-cbind(MSFT_lower,wfc_upper)
+cbind(wfc_lower,wfc_upper)
 
 # boostrap SD estimate
 #
@@ -571,18 +587,18 @@ sd_boot = function(x, idx) {
      ans = sd(x[idx])
      ans
 }
-wfc_sd_boot = sd_boot(wfc_ret, statistic = sd_boot, R=999)
+wfc_sd_boot = boot(wfc_ret0, statistic = sd_boot, R=999)
 wfc_sd_boot
 
 # compare boot SE with analytic SE
-se_sigmahat_wfc = sigmahat_wfc /sqrt(2*length(wfc))
+se_sigmahat_wfc = sigmahat_wfc /sqrt(2*length(wfc_ret0))
 se_sigmahat_wfc 
 
 # plot bootstrap distribution
-plot(wfc_sd.boot)
+plot(wfc_sd_boot)
 
 # compute confidence intervals
-boot_ci(wfc_sd_boot, conf=0.95, type=c("norm", "basic", "perc"))
+boot.ci(wfc_sd_boot, conf=0.95, type=c("norm", "basic", "perc"))
 
 # compare boot confidence intervals with analytic confidence interval
 wfc_lower = sigmahat_wfc - 2*se_sigmahat_wfc
@@ -597,170 +613,143 @@ rho_boot = function(x_mat, idx) {
 	ans = cor(x_mat[idx,])[1,2]
 	ans
 }
-wfc_SP500_cor_boot = boot(returns_mat[,c("wfc","sp500")],
-                           statistic=rho_boot, R = 999)
+wfc_SP500_cor_boot = boot(returns_lcc0[,c("wfc","sp500")], statistic=rho_boot, R = 999)
 wfc_SP500_cor_boot
 # compare boot SE with analytic SE based on CLT
-se_rhohat_wfc_SP500 = (1 - rhohat_wfc_SP500^2)/sqrt(length(wfc))
+se_rhohat_wfc_SP500 = (1 - rhohat_wfc_SP500^2)/sqrt(length(wfc_ret0))
 se_rhohat_wfc_SP500
 
 # plot bootstrap distribution
 plot(wfc_SP500_cor_boot)
 
 # bootstrap confidence intervals
-boot_ci(wfc_SP500_cor_boot, conf=0.95, type=c("norm", "basic", "perc"))
+boot.ci(wfc_SP500_cor_boot, conf=0.95, type=c("norm", "basic", "perc"))
 
 # boot estimate of normal distribution quantile
 
 norm_quantile_boot = function(x, idx, p=0.05) {
-# x_mat	data to be resampled
-# idx		vector of scrambled indices created by boot() function
-# p		probability value for quantile
-# value:
-# ans		normal quantile value computed using resampled data
-
 	q = mean(x[idx]) + sd(x[idx])*qnorm(p)
 	q
 }
 
-
-wfc_q05_boot = boot(wfc, statistic=norm_quantile_boot, R=999)
+wfc_q05_boot = boot(wfc_ret0, statistic=norm_quantile_boot, R=999)
 wfc_q05_boot
 plot(wfc_q05_boot)
-boot_ci(wfc_q05_boot, conf=0.95, type=c("norm", "basic", "perc"))
+boot.ci(wfc_q05_boot, conf=0.95, type=c("norm", "basic", "perc"))
 
 # 5% Value-at-Risk
 ValueAtRisk_boot = function(x, idx, p=0.05, w=100000) {
-# x_mat	data to be resampled
-# idx		vector of scrambled indices created by boot() function
-# p		probability value for VaR calculation
-# w		value of initial investment
-# value:
-# ans		Value-at-Risk computed using resampled data
-
 	q = mean(x[idx]) + sd(x[idx])*qnorm(p)
 	VaR = (exp(q) - 1)*w
 	VaR
 }
 
-wfc_VaR_boot = boot(wfc, statistic = ValueAtRisk_boot, R=999)
+wfc_VaR_boot = boot(wfc_ret0, statistic = ValueAtRisk_boot, R=999)
 wfc_VaR_boot
-boot_ci(wfc_VaR_boot, conf=0.95, type=c("norm", "perc"))
+boot.ci(wfc_VaR_boot, conf=0.95, type=c("norm", "perc"))
 
 plot(wfc_VaR_boot)
 
-
 ```
-## Hypothesis testing in CER model
 
----
-Hypothesis test is a mathematical model for testing a claim, idea or hypothesis about a parameter of interest in a given population. It starts by stating and assuming the "Null Hypothesis", and then the process determines whether the assumption is likely to be true or false. Alternative hypothesis is a direct contradiction of the null hypothesis. For a normal distribution, 95% of the values lie within 2 standard deviations of the population mean. Hence, this normal distribution and central limit assumption for the sample dataset allows us to establish 5% as a significance level. Depending upon the nature of datasets, other significance levels can be taken at 1%, 5% or 10%. If we find any calculations that go beyond the usual 2 sd, then we have a strong case of outliers to reject the null hypothesis. There can be two type of erros: Type1 or alpha: selecting the correct critical value allows eliminating the type-1 alpha errors or limiting them to an acceptable range. When the probability of a Type I error is less than 5% (p < 0.05), we decide to reject the null hypothesis; otherwise, we retain the null hypothesis. Type2 or beta:The probability of incorrectly retaining the null hypothesis, when in fact it is not applicable to the entire population.
-P(identify a Type I alpha error) = P(reject H0 given that H0 is true).  http://www.investopedia.com
+###Hypothesis testing in CER model
 
-```{r}
+Hypothesis test is a mathematical model for testing a claim, idea or hypothesis about a parameter of interest in a given population. It starts by stating and assuming the "Null Hypothesis", and then the process determines whether the assumption is likely to be true or false. Alternative hypothesis is a direct contradiction of the null hypothesis. For a normal distribution, 95% of the values lie within 2 standard deviations of the population mean. Hence, this normal distribution and central limit assumption for the sample dataset allows us to establish 5% as a significance level. Depending upon the nature of datasets, other significance levels can be taken at 1%, 5% or 10%. If we find any calculations that go beyond the usual 2 sd, then we have a strong case of outliers to reject the null hypothesis. There can be two type of erros: Type1 or alpha: selecting the correct critical value allows eliminating the type-1 alpha errors or limiting them to an acceptable range. When the probability of a Type I error is less than 5% (p < 0.05), we decide to reject the null hypothesis; otherwise, we retain the null hypothesis. Type2 or beta:The probability of incorrectly retaining the null hypothesis, when in fact it is not applicable to the entire population.P(identify a Type I alpha error) = P(reject H0 given that H0 is true).  http://www.investopedia.com
+
+
+```{r hypo}
 # chi-square distribution
-#
 # Basic significance tests for CER Model
-#
-
 # construct test by brute force
-nobs = dim(returns_lcc)[1]
-muhat_vals = apply(returns_lcc, 2, mean)
-muhat_vals
-sigmahat_vals = apply(returns_lcc, 2, sd)
-se_muhat = sigmahat_vals/sqrt(nobs)
-se_muhat
-t_stats = muhat_vals/se_muhat
-abs(t_stats)
+prices00<-prices
+prices00$Index<-NULL
+prices00 <- zooreg(data=as.matrix(prices00), start=c(1994,02), end=c(2015,04),frequency=12)
+index(prices00) <- as.yearmon(index(prices00))
+
+prices00 <- as.zoo(prices00)
+colnames(prices00)
+start(prices00)
+end(prices00)
+
+returns_lcc00 = diff(log(prices00))
+colnames(returns_lcc00)
+start(returns_lcc00)
+end(returns_lcc00)
+
+nobs <- 254
+muhat_vals <- apply(returns_lcc00, 2, mean)
+sigmahat_vals <- apply(returns_lcc00, 2, sd)
+se_muhat <- sigmahat_vals/sqrt(nobs)
+t_stats <- muhat_vals/se_muhat
+#abs(t_stats)
 
 # compute 2-sided 5% critical values
-cv_2sided = qt(0.975, df=nobs-1)
-cv_2sided
-abs(t_stats) > cv_2sided
+cv_2sided <- qt(0.975, df=nobs-1)
+#abs(t_stats) <- cv_2sided
 
 # compute 2-sided p-values
-2*(1-pt(abs(t_stats),df=nobs-1))
+(2*(1-pt(abs(t_stats),df=nobs-1)))
 
-#
-?t.test
 # Test H0: mu = 0 for appl
-t_test_aapl = t.test(returns_lcc[,"aapl"], 
-                     alternative="two.sided",
-                     mu=0, conf.level=0.95)
-class(t_test_aapl)
-t_test_aapl
+t_test_aapl <- t.test(returns_lcc00[,"aapl"], alternative="two.sided",mu=0, conf.level=0.95)
 
 # Test H0: mu = 0 for wfc and sp500
-t.test(returns_lcc[,"wfc"], alternative="two.sided",
-       mu=0, conf.level=0.95)
-t.test(returns_lcc[,"sp500"], alternative="two.sided",
-       mu=0, conf.level=0.95)
+t.test(returns_lcc00[,"wfc"], alternative="two.sided", mu=0, conf.level=0.95)
+t.test(returns_lcc00[,"sp500"], alternative="two.sided",mu=0, conf.level=0.95)
 
-#
 # test for specific value
-# 
-
 # Test H0: mu = 0.03 for appl
-t.test(returns_lcc[,"aapl"], 
-       alternative="two.sided",
-       mu = 0.03, conf.level=0.95)
+(t.test(returns_lcc00[,"aapl"], alternative="two.sided",mu = 0.03, conf.level=0.95))
 
 #
 # test for sign
 #
 
 # Test H0: mu > 0 for appl
-t.test(returns_lcc[,"aapl"], 
-       alternative="greater",
-       mu = 0, conf.level=0.95)
+(t.test(returns_lcc00[,"aapl"],  alternative="greater",mu = 0, conf.level=0.95))
 
 #
 # Paired t-test for equality of means
 #
 
 # Test H0: mu_appl = mu_wfc vs. H1: mu_appl /= mu_wfc
-t.test(x=returns_lcc[,"aapl"],
-       y=returns_lcc[,"wfc"], 
-       paired=T)
+(t.test(x=returns_lcc00[,"aapl"],y=returns_lcc00[,"wfc"], paired=T))
 
 
-#
 # test for normality of returns
-#
-
+par <- par("mar")
+par(mar=c(1,1,1,1))
 par(mfrow=c(2,2))
-	hist(returns_lcc[,"wfc"],main="wfc monthly cc returns",
+  hist(returns_lcc00[,"wfc"],main="wfc monthly cc returns",
 	probability=T, ylab="cc return", col="slateblue1")
-	boxplot(returns_lcc[,"wfc"],outchar=T, ylab="cc return",
+
+	boxplot(returns_lcc00[,"wfc"],outchar=T, ylab="cc return",
               col="slateblue1")
-	plot(density(returns_lcc[,"wfc"]),type="l",xlab="cc return",
+	plot(density(returns_lcc00[,"wfc"]),type="l",xlab="cc return",
 	     ylab="density estimate", main="Smoothed density",
            lwd=2, col="slateblue1")
-	qqnorm(returns_lcc[,"wfc"], col="slateblue1")
-	qqline(coredata(returns_lcc[,"wfc"]))
+	qqnorm(returns_lcc00[,"wfc"], col="slateblue1")
+	qqline(coredata(returns_lcc00[,"wfc"]))
 par(mfrow=c(1,1))
 
-wfc_skew = skewness(returns_lcc[,"wfc"])
-wfc_ekurt= kurtosis(returns_lcc[,"wfc"])			# note: this is excess kurtosis
+wfc_skew <- skewness(returns_lcc00[,"wfc"])
+wfc_ekurt<-kurtosis(returns_lcc00[,"wfc"])			# note: this is excess kurtosis
 
-JB = nobs*(wfc_skew^2 + 0.25*wfc_ekurt^2)/6
-JB
+JB <- nobs*(wfc_skew^2 + 0.25*wfc_ekurt^2)/6
 
 
 # compute p-value from chi-square 2 distn
 
-p_value = 1 - pchisq(JB,df=2)
-p_value
+p_value <- (1 - pchisq(JB,df=2))
 
 # use jarque.bera.test() function from tseries package
-library(tseries)
-jarque.bera.test(returns_lcc[,"wfc"])
+(jarque.bera.test(returns_lcc00[,"wfc"]))
 
 #
 # test for no autocorrelation in returns
 #
 
-wfc.acf = acf(returns_lcc[,"wfc"])
+(wfc_acf <- acf(returns_lcc00[,"wfc"]))
 
 #
 # diagnostics for constant parameters
@@ -773,9 +762,7 @@ wfc.acf = acf(returns_lcc[,"wfc"])
 # Split sample into two equally sized pieces
 # Test H0: E[r_sample1] = E[r_sample2]
 
-t.test(x=returns_lcc[1:50,"aapl"],
-       y=returns_lcc[51:100,"aapl"],
-       paired=F)
+(t.test(x=returns_lcc00[1:50,"aapl"],y=returns_lcc00[51:100,"aapl"],paired=F))
 
 
 # compute rolling means for wfc
@@ -783,17 +770,12 @@ t.test(x=returns_lcc[1:50,"aapl"],
 # note: must use zoo objects
 #
 
-?rollapply
-args(rollapply)
-
 # compute rolling means over 24 month windows
-roll_muhat = rollapply(returns_lcc[,"wfc"], width=24,
-                       FUN=mean, align="right")
-class(roll_muhat)
+roll_muhat <- rollapply(returns_lcc00[,"wfc"], width=24,FUN=mean, align="right")
 roll_muhat[1:5]
 
 # plot rolling estimates with data
-plot(merge(roll_muhat,returns_lcc[,"wfc"]), plot.type="single",
+plot(merge(roll_muhat,returns_lcc00[,"wfc"]), plot.type="single",
      main="24 month rolling means for wfc",ylab="returns",
      lwd=c(2,2), col=c("blue","orange"))
 abline(h=0)
@@ -801,12 +783,12 @@ legend(x="bottomleft",legend=c("Rolling mean","Monthly returns"),
        lwd=c(2,2), col=c("blue","orange"))
 
 # compute rolling standard deviations over 24 month windows
-roll_sigmahat = rollapply(returns_lcc[,"wfc"],width=24,
+roll_sigmahat <- rollapply(returns_lcc00[,"wfc"],width=24,
                           FUN=sd, align="right")
 roll_sigmahat[1:5]
 
 # plot rolling estimates with data
-plot(merge(roll_sigmahat,returns_lcc[,"wfc"]), plot.type="single",
+plot(merge(roll_sigmahat,returns_lcc00[,"wfc"]), plot.type="single",
      main="24 month rolling SDs for wfc", ylab="Returns",
      lwd=c(2,2), col=c("blue","orange"))
 abline(h=0)
@@ -815,13 +797,12 @@ legend(x="bottomleft",legend=c("Rolling SD","Monthly returns"),
 
 # repeat analysis for sp500
 # compute rolling means over 24 month windows
-roll_muhat = rollapply(returns_lcc[,"sp500"], width=24,
+roll_muhat <- rollapply(returns_lcc00[,"sp500"], width=24,
                        FUN=mean, align="right")
-class(roll_muhat)
 roll_muhat[1:5]
 
 # plot rolling estimates with data
-plot(merge(roll_muhat,returns_lcc[,"sp500"]), plot.type="single",
+plot(merge(roll_muhat,returns_lcc00[,"sp500"]), plot.type="single",
      main="24 month rolling means for SP500",ylab="returns",
      lwd=c(2,2), col=c("blue","orange"))
 abline(h=0)
@@ -829,12 +810,12 @@ legend(x="bottomleft",legend=c("Rolling mean","Monthly returns"),
        lwd=c(2,2), col=c("blue","orange"))
 
 # compute rolling standard deviations over 24 month windows
-roll_sigmahat = rollapply(returns_lcc[,"sp500"],width=24,
+roll_sigmahat <- rollapply(returns_lcc00[,"sp500"],width=24,
                           FUN=sd, align="right")
 roll_sigmahat[1:5]
 
 # plot rolling estimates with data
-plot(merge(roll_sigmahat,returns_lcc[,"sp500"]), plot.type="single",
+plot(merge(roll_sigmahat,returns_lcc00[,"sp500"]), plot.type="single",
      main="24 month rolling SDs for SP500", ylab="Returns",
      lwd=c(2,2), col=c("blue","orange"))
 abline(h=0)
@@ -844,15 +825,14 @@ legend(x="bottomleft",legend=c("Rolling SD","Monthly returns"),
 #
 # compute rolling correlations
 #
-rhohat = function(x) {
+rhohat <- function(x) {
 	cor(x)[1,2]
 }
 
 # compute rolling estimates b/w sp500 and wfc
-roll_rhohat = rollapply(returns_lcc[,c("sp500","wfc")],
+roll_rhohat <- rollapply(returns_lcc00[,c("sp500","wfc")],
                        width=24,FUN=rhohat, by.column=FALSE,
                        align="right")
-class(roll_rhohat)
 roll_rhohat[1:5]
 
 # plot rolling estimates 
@@ -862,25 +842,14 @@ plot(roll_rhohat, main="Rolling Correlation b/w SP500 and wfc",
 abline(h=0)   
 
 # compute rolling correlations b/w wfc and appl
-roll_rhohat = roll_rhohat = rollapply(returns_lcc[,c("wfc","aapl")],
+roll_rhohat <- rollapply(returns_lcc00[,c("wfc","aapl")],
                        width=24,FUN=rhohat, by.column=FALSE,
                        align="right")
-class(roll_rhohat)
 roll_rhohat[1:5]
 
 plot(roll_rhohat, main="Rolling Correlation b/w wfc and aapl",
      lwd=2, col="blue", ylab="rho_hat")
 abline(h=0) 
 
-1: In zoo(rval[i], index(x)[i]) :
-  some methods for “zoo” objects do not work if the index entries in ‘order.by’ are not unique
-
- 
-
-
-
-
-
-
-
+```
 
