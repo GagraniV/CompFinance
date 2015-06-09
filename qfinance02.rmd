@@ -636,6 +636,7 @@ plot(wfc_VaR_boot)
 ---
 
 Hypothesis test is a mathematical model for testing a claim, idea or hypothesis about a parameter of interest in a given population. It starts by stating and assuming the "Null Hypothesis", and then the process determines whether the assumption is likely to be true or false. Alternative hypothesis is a direct contradiction of the null hypothesis. For a normal distribution, 95% of the values lie within 2 standard deviations of the population mean. Hence, this normal distribution and central limit assumption for the sample dataset allows us to establish 5% as a significance level. Depending upon the nature of datasets, other significance levels can be taken at 1%, 5% or 10%. If we find any calculations that go beyond the usual 2 sd, then we have a strong case of outliers to reject the null hypothesis. There can be two type of erros: Type1 or alpha: selecting the correct critical value allows eliminating the type-1 alpha errors or limiting them to an acceptable range. When the probability of a Type I error is less than 5% (p < 0.05), we decide to reject the null hypothesis; otherwise, we retain the null hypothesis. Type2 or beta:The probability of incorrectly retaining the null hypothesis, when in fact it is not applicable to the entire population.P(identify a Type I alpha error) = P(reject H0 given that H0 is true).  http://www.investopedia.com
+
 ---
 
 ```{r hypo}
