@@ -671,10 +671,12 @@ colnames(prices00)
 start(prices00)
 end(prices00)
 
+
 returns_lcc00 = diff(log(prices00))
 colnames(returns_lcc00)
 start(returns_lcc00)
 end(returns_lcc00)
+returns_lcc00 = coredata(returns_lcc00)
 
 nobs <- 254
 muhat_vals <- apply(returns_lcc00, 2, mean)
