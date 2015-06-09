@@ -16,7 +16,6 @@ output:
 The Constant Expected Return Model or CER is a very simple asset return model can be represented as a simple regression model(CER=Mean+Error). The main assumption is that the asset return is independent and normally distributed over time with a constant mean, variance, covariance, and correlation. Expected return is constant with a normally distributed error term or unexpected news of mean zero and constant variance.
  
 For the logarithm of asset prices, the CER model is represented as Random Walk Model or RWM. In addition to the expected return and unexpected news, RWM includes unexpected change in the log-price, which is uncorrelated over time. The change in log-prices is a non-stationary process because variance increases with time t.
-
 http://faculty.washington.edu/ezivot/econ424/constantexpectedreturn.pdf
 
 ```{r Set_ChunkOptions, echo=FALSE}
@@ -26,9 +25,12 @@ knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='cen
 ```
 
 ## Mean, Variance, Standard Deviation, Skewness, and Kurtosis for the four assests
+
 ---
+
 Kurtosis: it measures tail thickness(Leptokurtosis or postive Kr: heavier tails, more concentrted around mean,with thinner flanks, and outlier prone distribution; Platykurtosis or negative Kr:Data points are less heavily concentrated around the mean,tails are also lighter than normal distribution, heavier flanks (looks like a disk)).
 Skewness:It measures the asymmetry of the distribution. The direction of skewness is the direction to which the data is trailing off.
+
 Normal probability plot: It is a visual method for determining whether or not data comes from a distribution that is approximately normal. The vertical axis represents the actual data values, and the horizontal axis displays the expected percentiles from a standard normal distribution. The normal reference line along the diagonal is where the data would fall if it were perfectly normal. 
 
 
@@ -45,8 +47,7 @@ library("mvtnorm")
 library("splusTimeSeries")
 library("boot")
 
-
-## Monthly Adjusted closing prices are downloaded from yahoo finace for SP500,AAPL,VBLX, and WFC from Febuary 1994 to April 2015 and saved as .csv files.
+# Monthly Adjusted closing prices are downloaded from yahoo finace for SP500,AAPL,VBLX, and WFC from Febuary 1994 to April 2015 and saved as .csv files.
 # read .csv data files
 SP500_prices <- read.csv("SP500_prices")
 AAPL_prices <- read.csv("AAPL_prices")
@@ -73,9 +74,10 @@ apply(prices_mat[2:5],2, kurtosis)
 ```
 
 ## Monthly Price, Log monthly Price, and Continous Compounding Return Plots
+
 ---
-Continous Componding, cc means that the principal is constsantly earning interest, and the interest keeps earning interest.
-The cc provides marvelous computaional adavantages(rc=ln(1+r)).Using the natural log and exponstial funcations, it  is easy to scale forward and discounting, scaling over multiple periods, as well as its time consitent. 
+
+Continous Componding, cc means that the principal is constsantly earning interest, and the interest keeps earning interest. The cc provides computaional adavantages(rc=ln(1+r)). Using the natural log and exponstial funcations, it  is easy to scale forward and discounting, scaling over multiple periods, as well as its time consitent. 
 
 ```{r Intial_Plots, echo=FALSE}
 # create cc returns from montly prices
@@ -87,9 +89,8 @@ returns_lcc<-as.zoo(returns_lcc)
 
 ## solution to the error message,"Error in plot.new() : figure margins too large"
 par <- par("mar")
-#par(mar=c(1,1,1,1))
+par(mar=c(1,1,1,1))
 # plot prices and returns for Microsoft
-#
 par(mfrow=c(2,1))
 plot(prices_mat[,"wfc"], col="blue", lwd=2, ylab="price", main="Monthly Prices on WFC")
 
@@ -102,7 +103,6 @@ plot(returns_lcc[,"wfc"],ylab="cc return",
 abline(h=0)
 
 ```
-
 ## Simulate Constant Expected Return or CER model for monthly returns on wfc
 
 ```{r Simu_Plots, echo=FALSE}
@@ -112,7 +112,7 @@ sd_e = 0.08213
 nobs = 100
 # generate random numbers for error
 set.seed(111)
-sim_e= rnorm(nobs, mean=0, sd=sd_e)
+sim_e = rnorm(nobs, mean=0, sd=sd_e)
 
 #Simulate constant compound (cc) returns
 sim_ret = mu + sim_e
@@ -123,7 +123,7 @@ abline(h=mu)
 hist(sim_ret, main="", xlab="returns", col="slateblue1")
 par(mfrow=c(1,1))
 
-````
+```
 
 ## Graphically summarize empirical distribution of simulated data
 
@@ -141,13 +141,14 @@ par(mfrow=c(1,1))
 ```
 
 ## Simulate random walk model (RWM) with initial log price = 1(wfc)
----
-The RWM model for log prices, mean: reprsents the expected change in the log prices between months t-1 and t; 
-error term: represents the unexpected change in the log price.
-The figure shows the simulated values for log-price based on RW model. The top panel shows the simulated price (sim_pe,p(t), blue color), the expected log price ((1+mu*seq(nobs),E[p(t)], dotted), and the accumulated random news (cumsum(sim_e),p(t)-E[p(t)], orange color). The bottom panel shows the simulated price levels (exp(sim_p),green color).
 
-```{r}
-#A Monte Carlo simulation of RW model with p0 = 1
+---
+
+The RWM model for log prices, mean: reprsents the expected change in the log prices between months t-1 and t; 
+error term: represents the unexpected change in the log price. The figure shows the simulated values for log-price based on RW model. The top panel shows the simulated price (sim_pe,p(t), blue color), the expected log price ((1+mu*seq(nobs),E[p(t)], dotted), and the accumulated random news (cumsum(sim_e),p(t)-E[p(t)], orange color). The bottom panel shows the simulated price levels (exp(sim_p),green color).
+
+```{r, rwm}
+#Monte Carlo simulation of RW model with p0 = 1
 mu = 0.01097
 sd_e = 0.08213
 nobs = 100
@@ -170,14 +171,12 @@ par(mfrow=c(1,1))
 
 ```
 
----
-
 ## Plot returns on all assests
 
 ```{r}
 
 # plot returns on wfc, sbux and sp500
-#
+
 returns_lcc_m = coredata(returns_lcc)
 wfc_ret = returns_lcc[,"wfc"]
 aapl_ret = returns_lcc[,"aapl"]
@@ -197,7 +196,9 @@ pairs(returns_lcc_m, col="blue")
 ```
 
 ## Estimate parameters (i.e., mean, variance, standard deviation, covariance, correlation) from the CER model
+
 ---
+
 Covariance matrix generalizes the notion of variance to multiple dimensions. The variances appear along the diagonal and covariances appear in the off-diagonal elements. The inverse of covariance matrix, is the inverse covariance matrix, also known as the concentration matrix or precision matrix. The elements of the precision matrix have an interpretation in terms of partial correlations and partial variances.
 
 Correlation matrix is the matrix of Pearson product moment correlation coefficients between each of the random variables.
@@ -222,9 +223,10 @@ rhohat_vals
 ```
 
 ## Compute estimated standard deviation (SD) or standard error (SE) and 95% confidence intervals for mean,var, sd, and correlation
+
 ---
-Standard Error:
-Standard error (SE) is the standard deviation of the sampling distribution of a statistic, most commonly of the mean. The sample mean is the usual estimator of a population mean,however different samples drawn from that same population would in general have different values of the sample mean, so there is a distribution of sampled means (SEM). It is the standard deviation of those sample means over all possible samples drawn from the population. SEM is also refers to an estimate of that standard deviation, computed from the sample of data being analyzed at the time. SEM is usually estimated by the sample estimate of the population standard deviation (sample standard deviation) divided by the square root of the sample size. In regression analysis, the term "sd" is used in the phrase standard error of the regression to mean the ordinary least squares estimate of the standard deviation of the underlying errors.
+
+Standard Error:Standard error (SE) is the standard deviation of the sampling distribution of a statistic, most commonly of the mean. The sample mean is the usual estimator of a population mean,however different samples drawn from that same population would in general have different values of the sample mean, so there is a distribution of sampled means (SEM). It is the standard deviation of those sample means over all possible samples drawn from the population. SEM is also refers to an estimate of that standard deviation, computed from the sample of data being analyzed at the time. SEM is usually estimated by the sample estimate of the population standard deviation (sample standard deviation) divided by the square root of the sample size. In regression analysis, the term "sd" is used in the phrase standard error of the regression to mean the ordinary least squares estimate of the standard deviation of the underlying errors.
 
 Confidence Interval: It is an interval estimate of mean to put an probability statment about the likelyhood that the interval covers the mean(http://spark-public.s3.amazonaws.com/compfinance/Lecture%20Notes/cermodelslides.pdf).
 
@@ -272,9 +274,10 @@ rho_width <- rho_upper - rho_lower
 cbind(rho_lower,rho_upper,rho_width)
 
 ```
-
 ## Monte Carlo evaluation of unbiasedness
+
 ---
+
 In monte Carlo simulation,samples are derived from a random sample of size n for sampling distribution of statistic such as mean, sd, variance, confidence interval. Monte Carlo is also considered as the distribution of the statistic for all possible samples from the same population of a given size.
 
 ```{r }
@@ -296,10 +299,10 @@ for (sim in 1:n_sim) {
         mu_lower[sim] = sim_means[sim]-qt.975*se_muhat
         mu_upper[sim] = sim_means[sim]+qt.975*se_muhat
 }
-mean(sim_means)
-sd(sim_means)
+m<-mean(sim_means)
+s<-sd(sim_means)
 in_interval = mu >= mu_lower & mu <= mu_upper
-sum(in_interval)/n_sim
+s1<-sum(in_interval)/n_sim
   
 hist(sim_means, col="slateblue1", ylim=c(0,40), main="", xlab="muhat", probability=T)
 abline(v=mean(sim_means), col="white", lwd=4, lty=2)
@@ -307,20 +310,17 @@ abline(v=mean(sim_means), col="white", lwd=4, lty=2)
 x_vals = seq(0.02, 0.08, length=100)
 lines(x_vals, dnorm(x_vals, mean=mu, sd=sd/sqrt(100)), col="orange", lwd=2)
 
-
 ```
-
 ## Compute expected value of estimates and bias for mean, variance, and SD
-
 
 ```{r}
 #generate 1000 samples from CER and compute sample statistics
   
-mean(sim_means)
-mean(sim_means) - mu
-sd(sim_means)
+m<-mean(sim_means)
+m1<-mean(sim_means) - mu
+sd1<-sd(sim_means)
   
-se_muhat["aapl"]
+se1<-se_muhat["aapl"]
 mu = 0.05
 sd = 0.10
 n_obs = 100
@@ -337,12 +337,12 @@ for (sim in 1:n_sim) {
 }
   
 # compute expected value of estimates and bias
-mean(sim_means)
-mean(sim_means) - mu
-mean(sim_vars)
-mean(sim_vars) - sd^2
-mean(sim_sds)
-mean(sim_sds) - sd
+m2<-mean(sim_means)
+m3<-mean(sim_means) - mu
+m4<-mean(sim_vars)
+m5<-mean(sim_vars) - sd^2
+m6<-mean(sim_sds)
+m7<-mean(sim_sds) - sd
   
 par(mfrow=c(2,2))
         hist(sim_means, col="slateblue1", xlab="mu hat values", main="mu hat")
@@ -366,8 +366,6 @@ sim_ret = muhat_vals + sim_e
 #colIds(sim.ret) <- paste(colIds(returns.mat),".sim",sep="")
 colnames(sim_ret) <- paste(colnames(returns_lcc_m),".sim",sep="")
 
-
-
 # plot data and scatterplots
 ts.plot(sim_ret,main="Simulated return data",
 lty=rep(1,3),lwd=rep(2,3),col=c(1,2,5))
@@ -385,17 +383,13 @@ abline(h=0)
 pairs(returns_lcc_m)
 
 ```
-
 ## Generate 1000 samples from CER and compute correlations
 
 ```{r}
-
 n_obs = 100
 n_sim = 1000
 set.seed(111)
 sim_corrs = matrix(0,n_sim,6)  # initialize vectors
-#colIds(sim_corrs) = c("sbux,msft","sbux,sp500","msft,sp500")
-
 colnames(sim_corrs) <-c("sp500,vbltx","aapl,vbltx","wfc,vlltx","aapl,sp500","wfc,sp500","wfc,aapl")
 
 for (sim in 1:n_sim) {
@@ -435,20 +429,16 @@ Rolling analysis of mean and SD is very important in finacial time series data t
 
 ```{r}
 
-#
 class(returns_lcc)
 colnames(returns_lcc)
 start(returns_lcc)
 end(returns_lcc)
 
-wfc_lcc= returns_lcc[,"wfc"]
-class(wfc_lcc)
+wfc_lcc<- returns_lcc[,"wfc"]
 plot(wfc_lcc)
-
-
 # compute rolling means of width 24 months
 roll_mean_24 = rollapply(wfc_lcc, width=24,FUN=mean, align="right")
-roll_mean_24
+rm<-roll_mean_24
 plot(roll_mean_24,main="Rolling 24 month mean estimates")
 abline(h=muhat_vals["wfc"])
 
@@ -458,7 +448,7 @@ abline(h=muhat_vals["wfc"])
 
 # compute rolling sds of width 24 months 
 roll_sd_24 = rollapply(wfc_lcc, width=24,FUN=sd, align="right")
-roll_sd_24
+rsd<-roll_sd_24
 plot(roll_sd_24, main="Rolling 24 month SD estimates")
 abline(h=sigmahat_vals["wfc"])
 
@@ -489,7 +479,7 @@ W0 = 100000
 VaRhat_05 = (exp(qhat_05)-1)*W0
 VaRhat_05
 
-# Other vVaR example 
+# Other VaR example 
 muhat = 0.02
 sigmahat = 0.10
 qhat_05 = muhat + sigmahat*qnorm(0.05)
@@ -500,6 +490,7 @@ VaRhat_05
 ```
 
 ## Bootstrapping in CER model
+
 ---
 
 Boothstrapping is a resampling tchnique can be used to generate SE and confidence intervals without using the analytical formulas. Resamples are created by sampling with replacement. It accumulate the results and calculate sample distrbution of the statistcs. This method doesn't need normally distrbuted data of a relatively large sample size. Hence it is widely used in CER model or VaR.
@@ -510,17 +501,9 @@ prices0<-prices
 prices0$Index<-NULL
 prices0 = zooreg(data=as.matrix(prices0), start=c(1994,02), end=c(2015,04),frequency=12)
 index(prices0) = as.yearmon(index(prices0))
-
 prices0 = as.zoo(prices0)
-                      
-colnames(prices0)
-start(prices0)
-end(prices0)
-
+  
 returns_lcc0 = diff(log(prices0))
-colnames(returns_lcc0)
-start(returns_lcc0)
-end(returns_lcc0)
 
 returns_lcc0 = coredata(returns_lcc0)
 wfc_ret0 = returns_lcc0[,"wfc"]
@@ -528,13 +511,9 @@ aapl_ret0 = returns_lcc0[,"aapl"]
 sp500_ret0 = returns_lcc0[,"sp500"]
 
 # compute estimates of mu, sigma for MSFT and rho for MSFT and SP500
-#
-muhat_wfc = mean(wfc_ret0)
-sigmahat_wfc = sd(wfc_ret0)
-rhohat_wfc_SP500 = cor(returns_lcc0[,c("wfc","sp500")])
-muhat_wfc
-sigmahat_wfc
-rhohat_wfc_SP500
+muhat_wfc <- mean(wfc_ret0)
+sigmahat_wfc <- sd(wfc_ret0)
+rhohat_wfc_SP500 <- cor(returns_lcc0[,c("wfc","sp500")])
 
 # plot prices and returns for wfc
 par(mfrow=c(2,1))
@@ -553,9 +532,9 @@ abline(h=0)
 muhat_wfc <- mean(wfc_ret0)
 sigmahat_wfc <- sd(wfc_ret0)
 se_muhat_wfc <- sigmahat_wfc/sqrt(length(wfc_ret0))
-rbind(muhat_wfc, se_muhat_wfc)
+mm<-rbind(muhat_wfc, se_muhat_wfc)
 
-# Boot mean estimates using R boot package function boot().  Boot requires user-supplied functions that take two arguments: data and an index. The index is created by the boot function and represents random resampling with replacement.  The R package boot calls the estimation function repeatedly (equal to bootstrap replication, R=999). Each time, the data will be the same (wfc_ret), but the bootstrap sample supplied using an integer vector of indexes will be different.http://www.mayin.org/ajayshah/KB/R/documents/boot.html
+# Boot mean estimates using R boot package function boot().  Boot requires user-supplied functions that take two arguments: data and an index. The index is created by the boot function and represents random resampling with replacement. The R package boot calls the estimation function repeatedly (equal to bootstrap replication, R=999). Each time, the data will be the same (wfc_ret), but the bootstrap sample supplied using an integer vector of indexes will be different.http://www.mayin.org/ajayshah/KB/R/documents/boot.html
 
 mean_boot = function(x, idx) {
      ans = mean(x[idx])
@@ -563,11 +542,11 @@ mean_boot = function(x, idx) {
 }
 
 wfc_mean_boot = boot(wfc_ret0, statistic = mean_boot, R=999)
-class(wfc_mean_boot)
-names(wfc_mean_boot)
+#class(wfc_mean_boot)
+#names(wfc_mean_boot)
 # compare boot SE with analytic SE
 se_muhat_wfc = sigmahat_wfc/sqrt(length(wfc_ret0))
-se_muhat_wfc
+#se_muhat_wfc
 # plot bootstrap distribution and qq-plot against normal
 plot(wfc_mean_boot)
 
@@ -581,18 +560,18 @@ wfc_upper = muhat_wfc + 2*se_muhat_wfc
 cbind(wfc_lower,wfc_upper)
 
 # boostrap SD estimate
-#
+
 # function for bootstrapping sample standard deviation
 sd_boot = function(x, idx) {
      ans = sd(x[idx])
      ans
 }
 wfc_sd_boot = boot(wfc_ret0, statistic = sd_boot, R=999)
-wfc_sd_boot
+#wfc_sd_boot
 
 # compare boot SE with analytic SE
-se_sigmahat_wfc = sigmahat_wfc /sqrt(2*length(wfc_ret0))
-se_sigmahat_wfc 
+se_sigmahat_wfc <- sigmahat_wfc /sqrt(2*length(wfc_ret0))
+#se_sigmahat_wfc 
 
 # plot bootstrap distribution
 plot(wfc_sd_boot)
@@ -617,7 +596,7 @@ wfc_SP500_cor_boot = boot(returns_lcc0[,c("wfc","sp500")], statistic=rho_boot, R
 wfc_SP500_cor_boot
 # compare boot SE with analytic SE based on CLT
 se_rhohat_wfc_SP500 = (1 - rhohat_wfc_SP500^2)/sqrt(length(wfc_ret0))
-se_rhohat_wfc_SP500
+#se_rhohat_wfc_SP500
 
 # plot bootstrap distribution
 plot(wfc_SP500_cor_boot)
@@ -633,7 +612,7 @@ norm_quantile_boot = function(x, idx, p=0.05) {
 }
 
 wfc_q05_boot = boot(wfc_ret0, statistic=norm_quantile_boot, R=999)
-wfc_q05_boot
+#wfc_q05_boot
 plot(wfc_q05_boot)
 boot.ci(wfc_q05_boot, conf=0.95, type=c("norm", "basic", "perc"))
 
@@ -652,10 +631,12 @@ plot(wfc_VaR_boot)
 
 ```
 
-###Hypothesis testing in CER model
+##Hypothesis testing in CER model
+
+---
 
 Hypothesis test is a mathematical model for testing a claim, idea or hypothesis about a parameter of interest in a given population. It starts by stating and assuming the "Null Hypothesis", and then the process determines whether the assumption is likely to be true or false. Alternative hypothesis is a direct contradiction of the null hypothesis. For a normal distribution, 95% of the values lie within 2 standard deviations of the population mean. Hence, this normal distribution and central limit assumption for the sample dataset allows us to establish 5% as a significance level. Depending upon the nature of datasets, other significance levels can be taken at 1%, 5% or 10%. If we find any calculations that go beyond the usual 2 sd, then we have a strong case of outliers to reject the null hypothesis. There can be two type of erros: Type1 or alpha: selecting the correct critical value allows eliminating the type-1 alpha errors or limiting them to an acceptable range. When the probability of a Type I error is less than 5% (p < 0.05), we decide to reject the null hypothesis; otherwise, we retain the null hypothesis. Type2 or beta:The probability of incorrectly retaining the null hypothesis, when in fact it is not applicable to the entire population.P(identify a Type I alpha error) = P(reject H0 given that H0 is true).  http://www.investopedia.com
-
+---
 
 ```{r hypo}
 # chi-square distribution
@@ -667,16 +648,15 @@ prices00 <- zooreg(data=as.matrix(prices00), start=c(1994,02), end=c(2015,04),fr
 index(prices00) <- as.yearmon(index(prices00))
 
 prices00 <- as.zoo(prices00)
-colnames(prices00)
-start(prices00)
-end(prices00)
-
+#colnames(prices00)
+#start(prices00)
+#end(prices00)
 
 returns_lcc00 = diff(log(prices00))
-colnames(returns_lcc00)
-start(returns_lcc00)
-end(returns_lcc00)
-returns_lcc00 = coredata(returns_lcc00)
+#colnames(returns_lcc00)
+#start(returns_lcc00)
+#end(returns_lcc00)
+returns_lcc00 <- coredata(returns_lcc00)
 
 nobs <- 254
 muhat_vals <- apply(returns_lcc00, 2, mean)
@@ -690,10 +670,10 @@ cv_2sided <- qt(0.975, df=nobs-1)
 #abs(t_stats) <- cv_2sided
 
 # compute 2-sided p-values
-(2*(1-pt(abs(t_stats),df=nobs-1)))
+ci<-(2*(1-pt(abs(t_stats),df=nobs-1)))
 
 # Test H0: mu = 0 for appl
-t_test_aapl <- t.test(returns_lcc00[,"aapl"], alternative="two.sided",mu=0, conf.level=0.95)
+t.test(returns_lcc00[,"aapl"], alternative="two.sided",mu=0, conf.level=0.95)
 
 # Test H0: mu = 0 for wfc and sp500
 t.test(returns_lcc00[,"wfc"], alternative="two.sided", mu=0, conf.level=0.95)
@@ -703,20 +683,15 @@ t.test(returns_lcc00[,"sp500"], alternative="two.sided",mu=0, conf.level=0.95)
 # Test H0: mu = 0.03 for appl
 (t.test(returns_lcc00[,"aapl"], alternative="two.sided",mu = 0.03, conf.level=0.95))
 
-#
 # test for sign
-#
 
 # Test H0: mu > 0 for appl
 (t.test(returns_lcc00[,"aapl"],  alternative="greater",mu = 0, conf.level=0.95))
 
-#
 # Paired t-test for equality of means
-#
 
 # Test H0: mu_appl = mu_wfc vs. H1: mu_appl /= mu_wfc
 (t.test(x=returns_lcc00[,"aapl"],y=returns_lcc00[,"wfc"], paired=T))
-
 
 # test for normality of returns
 par <- par("mar")
@@ -739,7 +714,6 @@ wfc_ekurt<-kurtosis(returns_lcc00[,"wfc"])			# note: this is excess kurtosis
 
 JB <- nobs*(wfc_skew^2 + 0.25*wfc_ekurt^2)/6
 
-
 # compute p-value from chi-square 2 distn
 
 p_value <- (1 - pchisq(JB,df=2))
@@ -747,37 +721,29 @@ p_value <- (1 - pchisq(JB,df=2))
 # use jarque.bera.test() function from tseries package
 (jarque.bera.test(returns_lcc00[,"wfc"]))
 
-#
 # test for no autocorrelation in returns
-#
 
-(wfc_acf <- acf(returns_lcc00[,"wfc"]))
+wfc_acf <- acf(returns_lcc00[,"wfc"])
 
-#
 # diagnostics for constant parameters
-#
-
-#
 # compute two sample t-test for equality of means
-#
 
 # Split sample into two equally sized pieces
 # Test H0: E[r_sample1] = E[r_sample2]
 
 (t.test(x=returns_lcc00[1:50,"aapl"],y=returns_lcc00[51:100,"aapl"],paired=F))
-
-
 # compute rolling means for wfc
 # using function rollapply
 # note: must use zoo objects
-#
+```
+# Compute rolling means over 24 month windows
 
-# compute rolling means over 24 month windows
-roll_muhat <- rollapply(returns_lcc00[,"wfc"], width=24,FUN=mean, align="right")
-roll_muhat[1:5]
+```{r}
+roll_muhat <- rollapply(returns_lcc[,"wfc"], width=24,FUN=mean, align="right")
+#roll_muhat[1:5]
 
 # plot rolling estimates with data
-plot(merge(roll_muhat,returns_lcc00[,"wfc"]), plot.type="single",
+plot(merge(roll_muhat,returns_lcc[,"wfc"]), plot.type="single",
      main="24 month rolling means for wfc",ylab="returns",
      lwd=c(2,2), col=c("blue","orange"))
 abline(h=0)
@@ -785,12 +751,12 @@ legend(x="bottomleft",legend=c("Rolling mean","Monthly returns"),
        lwd=c(2,2), col=c("blue","orange"))
 
 # compute rolling standard deviations over 24 month windows
-roll_sigmahat <- rollapply(returns_lcc00[,"wfc"],width=24,
+roll_sigmahat <- rollapply(returns_lcc[,"wfc"],width=24,
                           FUN=sd, align="right")
-roll_sigmahat[1:5]
+#roll_sigmahat[1:5]
 
 # plot rolling estimates with data
-plot(merge(roll_sigmahat,returns_lcc00[,"wfc"]), plot.type="single",
+plot(merge(roll_sigmahat,returns_lcc[,"wfc"]), plot.type="single",
      main="24 month rolling SDs for wfc", ylab="Returns",
      lwd=c(2,2), col=c("blue","orange"))
 abline(h=0)
@@ -799,9 +765,9 @@ legend(x="bottomleft",legend=c("Rolling SD","Monthly returns"),
 
 # repeat analysis for sp500
 # compute rolling means over 24 month windows
-roll_muhat <- rollapply(returns_lcc00[,"sp500"], width=24,
+roll_muhat <- rollapply(returns_lcc[,"sp500"], width=24,
                        FUN=mean, align="right")
-roll_muhat[1:5]
+#roll_muhat[1:5]
 
 # plot rolling estimates with data
 plot(merge(roll_muhat,returns_lcc00[,"sp500"]), plot.type="single",
@@ -812,30 +778,28 @@ legend(x="bottomleft",legend=c("Rolling mean","Monthly returns"),
        lwd=c(2,2), col=c("blue","orange"))
 
 # compute rolling standard deviations over 24 month windows
-roll_sigmahat <- rollapply(returns_lcc00[,"sp500"],width=24,
+roll_sigmahat <- rollapply(returns_lcc[,"sp500"],width=24,
                           FUN=sd, align="right")
-roll_sigmahat[1:5]
+#roll_sigmahat[1:5]
 
 # plot rolling estimates with data
-plot(merge(roll_sigmahat,returns_lcc00[,"sp500"]), plot.type="single",
+plot(merge(roll_sigmahat,returns_lcc[,"sp500"]), plot.type="single",
      main="24 month rolling SDs for SP500", ylab="Returns",
      lwd=c(2,2), col=c("blue","orange"))
 abline(h=0)
 legend(x="bottomleft",legend=c("Rolling SD","Monthly returns"),
        lwd=c(2,2), col=c("blue","orange"))
 
-#
 # compute rolling correlations
-#
 rhohat <- function(x) {
 	cor(x)[1,2]
 }
 
 # compute rolling estimates b/w sp500 and wfc
-roll_rhohat <- rollapply(returns_lcc00[,c("sp500","wfc")],
+roll_rhohat <- rollapply(returns_lcc[,c("sp500","wfc")],
                        width=24,FUN=rhohat, by.column=FALSE,
                        align="right")
-roll_rhohat[1:5]
+#roll_rhohat[1:5]
 
 # plot rolling estimates 
 
@@ -844,10 +808,10 @@ plot(roll_rhohat, main="Rolling Correlation b/w SP500 and wfc",
 abline(h=0)   
 
 # compute rolling correlations b/w wfc and appl
-roll_rhohat <- rollapply(returns_lcc00[,c("wfc","aapl")],
+roll_rhohat <- rollapply(returns_lcc[,c("wfc","aapl")],
                        width=24,FUN=rhohat, by.column=FALSE,
                        align="right")
-roll_rhohat[1:5]
+#roll_rhohat[1:5]
 
 plot(roll_rhohat, main="Rolling Correlation b/w wfc and aapl",
      lwd=2, col="blue", ylab="rho_hat")
