@@ -1,4 +1,53 @@
-# Read .csv files containing wfc's monthly adjusted closing price data
+options(digits=4, width=70)
+library(PerformanceAnalytics)
+library(zoo)
+library(tseries)
+library(plyr)
+library(mvtnorm)
+
+# get the adjusted closing prices from Yahoo for Vanguard Long-Term Bond Index Inv (VBLTX)
+VBLTX_prices = get.hist.quote(instrument="vbltx", start="1994-02-01",
+                              end="2015-04-30", quote="AdjClose",
+                              provider="yahoo", origin="1970-01-01",
+                              compression="m", retclass="zoo")
+index(VBLTX_prices) = as.yearmon(index(VBLTX_prices))
+#write csv file from zoo object
+write.zoo(VBLTX_prices, file = "VBLTX_prices", sep =",") 
+class(VBLTX_prices)
+colnames(VBLTX_prices)
+start(VBLTX_prices)
+end(VBLTX_prices)
+
+WFC_prices = get.hist.quote(instrument="wfc", start="1994-02-01",
+                            end="2015-04-30", quote="AdjClose",
+                            provider="yahoo", origin="1970-01-01",
+                            compression="m", retclass="zoo")
+index(WFC_prices) = as.yearmon(index(WFC_prices))
+#write csv file from zoo object
+write.zoo(WFC_prices, file = "WFC_prices",sep =",")  
+
+AAPL_prices = get.hist.quote(instrument="AAPL", start="1994-02-01",
+                             end="2015-04-30", quote="AdjClose",
+                             provider="yahoo", origin="1970-01-01",
+                             compression="m", retclass="zoo")
+index(AAPL_prices) = as.yearmon(index(AAPL_prices))
+#write csv file from zoo object
+write.zoo(AAPL_prices, file = "AAPL_prices",sep =",") 
+
+SP500_prices = get.hist.quote(instrument="^GSPC", start="1994-02-01",
+                              end="2015-04-30", quote="AdjClose",
+                              provider="yahoo", origin="1970-01-01",
+                              compression="m", retclass="zoo")
+index(SP500_prices) = as.yearmon(index(SP500_prices))
+#write csv file from zoo object
+write.zoo(SP500_prices, file = "SP500_prices",sep =",")
+
+# read dowloaded data
+SP500_prices <- read.csv("SP500_prices")
+AAPL_prices <- read.csv("AAPL_prices")
+VBLTX_prices <- read.csv("VBLTX_prices")
+WFC_prices <- read.csv("WFC_prices")
+
 wfc <- read.csv("~/Finance/Coursera/qfinance/wfc.csv")
 class(wfc)
 str(wfc)
