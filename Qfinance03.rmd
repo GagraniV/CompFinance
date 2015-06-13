@@ -1,7 +1,17 @@
+---
+title: "Describing and modeling finacial time series"
+author: "Vijaya Gagrani"
+date: "May 2015"
+output:
+  slidy_presentation: default
+  ioslides_presentation:
+    keep_md: yes
+    transition: faster
+    widescreen: yes
+  beamer_presentation: default
+---
 
-# basic time sereis concepts for describing and modeling finacial time series.
-#http://faculty.washington.edu/ezivot/econ424/424notes.htm
-### Background and Goal
+## Background and Objective
 
 The basic assumption for the time series data are that varibles are identically distributed but expected to have some dependency between random varibles close togather in time, but not far apart in time. These assumptioon can be explained by stationarity and ergodicity concepts. 
 
@@ -13,110 +23,71 @@ the concept of ergodicity. A stochastic process is ergodic if any two collection
 An important class of linear time series models is the family of Autoregressive Integrated Moving Average (ARIMA) models, proposed by Box and Jenkins (1976). It assumes that the current value can depend only on the past values of the time series itself or on past values of some error term. Building an ARIMA model consists three steps: 1.Model identification (involves determining the order  that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. diagnostic checking(e.g.,model residuals behave as white noise). (auto.arima)
 
 
+```{r Set_ChunkOptions, echo=FALSE}
+#Select Chunk and package options @ http://yihui.name/knitr/options
+knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='center', warning = FALSE,cache=FALSE)
 
+```
+## simulate Gaussian White Noise, GWN process
+The GWN process doesn't have any predictable pattern over time.
+```{r}
 options(digits=4, width=70)
 
-# simulate Gaussian White Noise, GWN process
-The GWN process doesn't have any predictable pattern over time.
 set.seed(123)
-y = rnorm(250)
+y <- rnorm(250)
 ts.plot(y,main="Gaussian White Noise Process",xlab="time",ylab="y(t)",
         col="blue", lwd=2)
 abline(h=0)
 
+```
 
-# simulate Gaussian White Noise process for cc returns
-The cc returns fluctuate around the mean value of 0.01 and the size of a typical deviation is about 0.05.
+## simulate Gaussian White Noise process for cc returns
+
+- The cc returns for "wfc"" fluctuate around the mean value of 0.01 and the size of a typical deviation is about 0.05.
+
+- Deterministically trending process: This process is nonstationary becuase it depends on t. It can be transformed into a stationary process by simply subtracting off the trend.
+
+```{r, echo=FALSE}
+
 set.seed(123)
-y = rnorm(60, mean=0.01, sd=0.05)
-ts.plot(y,main="GWN Process for Monthly Continuously Compounded Returns",
+y <- rnorm(60, mean=0.01, sd=0.05)
+ts.plot(y,main="GWN Process for Monthly Continuously Compounded Returns of wfc",
         xlab="time",ylab="r(t)", col="blue", lwd=2, type="h")
 abline(h=c(0,-0.05,0.05), lwd=2, lty=c("solid","dotted","dotted"), 
        col=c("black", "red", "red"))
-       
 
-# simultate deterministically trending process
-# The process is nonstationary becuase it depends on t. It can be transformed into a stationary process by simply subtracting off the trend.
+#Deterministically trending process
 set.seed(123)
-e = rnorm(250)
-y.dt = 0.1*seq(250) + e
-ts.plot(y.dt, lwd=2, col="blue", main="Deterministic Trend + Noise")
+e <- rnorm(250)
+y_dt <-0.1*seq(250) + e
+ts.plot(y_dt, lwd=2, col="blue", main="Deterministic Trend + Noise")
 abline(a=0, b=0.1)
 
-#
-# simulate random walk random walk
-#
+```
 
-set.seed(321)
-e = rnorm(250)
-y.rw = cumsum(e)
-ts.plot(y.rw, lwd=2, col="blue", main="Random Walk")
-abline(h=0)
+## MOving Average Model
 
-# simulate MA(1) process with theta 0.9 and e(t) ~ N(0,1)
+Moving average models are simple covariance stationary and ergodic time series models that can capture a wide variety of autocorrelation patterns. To create a covariance stationary and ergodic stochastic process in which yt and yt minus 1 are correlated but Yt and yt minus j are not correlated for j less then 1, where the time dependence in the process only lasts for one period. These processes can be created using the first order moving average (MA(1)) model. The moving average parameter, theta determines the sign and magnitude of the correlation between yt and yt minus 1. Clearly, if theta equals to 0 then yt exhibits no time dependence.
 
-
-Moving average models are simple covariance stationary and ergodic time series models that can capture a wide variety of autocorrelation patterns. To create a covariance stationary and ergodic stochastic process in which Yt and Yt−1 are correlated but Yt and Yt−j are not correlated for j>1 That is, the time dependence in the process only lasts for one period. Such a process can be created using the first order moving
-average (MA(1)) model. The moving average parameter, theta determines the sign and magnitude of the correlation between Yt and Yt−1 Clearly, if theta = 0 then Yt exhibits no time dependence.
-
+```{r}
 #theta =0.9
-ma1.model = list(ma=0.9)
-mu = 1
+ma1_model <- list(ma=0.9)
+mu <- 1
 set.seed(123)
-ma1.sim = mu + arima.sim(model=ma1.model,n=250)
-#The function arima.sim() can be used to simulate observations from the class of autoregressive integrated moving average (ARIMA) models, of which the MA(1) model is a special case.
-# simulate MA(1) process with theta 0.9 and e(t) ~ N(0,(0.1)^2)
-
-set.seed(123)
-ma1.sim2 = mu + arima.sim(model=ma1.model, n=250, innov=rnorm(n=250, mean=0, sd=0.1))
-
-# ACF for MA(1) model
-ma1.acf = ARMAacf(ar=0, ma=0.9, lag.max=10)
-ma1.acf
-
-par(mfrow=c(2,1))
-ts.plot(ma1.sim,main="MA(1) Process: mu=1, theta=0.9",
-xlab="time",ylab="y(t)", col="blue", lwd=2)
-abline(h=c(0,1))
-
-plot(0:10, ma1.acf,type="h", col="blue", lwd=2,
-main="ACF for MA(1): theta=0.9",xlab="lag",ylab="rho(j)")
-abline(h=0)
-par(mfrow=c(1,1))
-
-# simulate MA(1) process with theta < 0
-ma1.model = list(ma=-0.75)
-mu = 1
-set.seed(123)
-ma1.sim = mu + arima.sim(model=ma1.model,n=250)
-ts.plot(ma1.sim,main="MA(1) Process: mu=1, theta=-0.75",
-xlab="time",ylab="y(t)", col="blue", lwd=2)
-abline(h=0)
-
+ma1_sim <- mu + arima.sim(model=ma1_model,n=250)
 # ACF for MA(1) model
 #The function ARMAacf() can be used to compute the theoretical autocorrelations,from the MA(1) model
 
-ma1.acf = ARMAacf(ar=0, ma=-0.9, lag.max=10)
-plot(0:10, ma1.acf,type="h", col="blue", lwd=2,
-main="ACF for MA(1): theta=-0.9",xlab="lag",ylab="rho(j)")
-abline(h=0)
-
-
-# simulate AR(1) process: phi = 0.9
-ar1.model = list(ar=0.9)
-mu = 1
-set.seed(123)
-ar1.sim = mu + arima.sim(model=ar1.model,n=250)
-ar1.acf = ARMAacf(ar=0.9, ma=0, lag.max=10)
-
+ma1_acf <- ARMAacf(ar=0, ma=0.9, lag.max=10)
+par <- par("mar")
+par(mar=c(1,1,1,1))
 par(mfrow=c(2,1))
-ts.plot(ar1.sim,main="AR(1) Process: mu=1, phi=0.9",
+ts.plot(ma1_sim,main="MA(1) Process: mu=1, theta=0.9",
 xlab="time",ylab="y(t)", col="blue", lwd=2)
-abline(h=0)
-abline(h=1)
-# ACF for AR(1) model
-plot(0:10, ar1.acf,type="h", col="blue", lwd=2,
-main="ACF for AR(1): phi=0.9",xlab="lag",ylab="rho(j)")
+abline(h=c(0,1))
+
+plot(0:10, ma1_acf,type="h", col="blue", lwd=2,
+main="ACF for MA(1): theta=0.9",xlab="lag",ylab="rho(j)")
 abline(h=0)
 par(mfrow=c(1,1))
 
@@ -138,6 +109,8 @@ main="ACF for AR(1): phi=-0.75",xlab="lag",ylab="rho(j)")
 abline(h=0)
 
 par(mfrow=c(1,1))
+
+
 
 # simulate AR(1) process: phi = 0.99
 ar1.model = list(ar=0.99)
@@ -167,7 +140,7 @@ phi = 1.01
 e = rnorm(250)
 y = rep(0,250)
 for (i in 2:250) {
-	y[i] = phi*y[i-1] + e[i]
+  y[i] = phi*y[i-1] + e[i]
 }
 
 par(mfrow=c(2,1))
@@ -187,3 +160,8 @@ abline(h=0)
 ts.plot(y,main="AR(1) Process: phi=1.01",
 xlab="time",ylab="y(t)")
 abline(h=0)
+
+
+```
+
+
