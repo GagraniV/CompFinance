@@ -121,18 +121,3 @@ plot(theForcast)
 ```
 
 
-## simulate Gaussian White Noise, GWN process
-
-The GWN process doesn't have any predictable pattern over time.
-
-```{r}
-options(digits=4, width=70)
-
-set.seed(123)
-y <- rnorm(250)
-ts.plot(y,main="Gaussian White Noise Process",xlab="time",ylab="y(t)",
-        col="blue", lwd=2)
-abline(h=0)
-
-```
-
