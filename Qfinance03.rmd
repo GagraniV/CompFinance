@@ -15,21 +15,116 @@ output:
 
 The basic assumption for the time series data are that varibles are identically distributed but expected to have some dependency between random varibles close togather in time, but not far apart in time. These assumptioon can be explained by stationarity and ergodicity concepts. 
 
-In a stationary stochastic process, the joint distribution of random variables is time invariant.The autocovariances and autocorrelations are measures of the linear temporal dependence in a covariance stationary stochastic process, known as autocorrelation function (ACF).The autocovariances measure the direction of linear dependence between to varibles, the autocorrelations measure both the direction and strength of linear dependence between two varibles.
+In a stationary stochastic process, the joint distribution of random variables is time invariant. The autocovariances and autocorrelations are measures of the linear temporal dependence in a covariance stationary stochastic process, known as autocorrelation function (ACF).The ACF revels the interrelationships within a time series or correlation between allpairs of data points that are exactly same steps appart.
 
-In a strictly stationary or covariance stationary stochastic process no assumption is made about the strength of dependence between random variables in the sequence. The strength of dependence between random variables in a stochastic process diminishes the farther apart they become. This diminishing dependence assumption is captured by
-the concept of ergodicity. A stochastic process is ergodic if any two collections of random variables partitioned far apart in the sequence.
+In a strictly stationary or covariance stationary stochastic process no assumption is made about the strength of dependence between random variables in the sequence. The strength of dependence between random variables in a stochastic process diminishes the farther apart they become. This diminishing dependence assumption is captured by the concept of ergodicity. A stochastic process is ergodic if any two collections of random points partitioned far apart in the sequence.
 
-An important class of linear time series models is the family of Autoregressive Integrated Moving Average (ARIMA) models, proposed by Box and Jenkins (1976). It assumes that the current value can depend only on the past values of the time series itself or on past values of some error term. Building an ARIMA model consists three steps: 1.Model identification (involves determining the order  that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. diagnostic checking(e.g.,model residuals behave as white noise). (auto.arima)
+An important class of linear time series models is the family of Autoregressive Integrated Moving Average (ARIMA) models, proposed by Box and Jenkins (1976). It assumes that the current value can depend only on the past values of the time series itself or on past values of some error term.
 
+Moving average models are simple covariance stationary and ergodic time series models that can capture a wide variety of autocorrelation patterns. To create a covariance stationary and ergodic stochastic process in which yt and yt minus 1 are correlated but Yt and yt minus j are not correlated for j less then 1, where the time dependence in the process only lasts for one period. These processes can be created using the first order moving average (MA(1)) model. The moving average parameter, theta determines the sign and magnitude of the correlation between yt and yt minus 1. Clearly, if theta equals to 0 then yt exhibits no time dependence.
+
+
+The presence of autocorrelation is one indication that an ARIMA model could be used to model the time series.From ACF plot, one can count number of significant autocorrelations, which is a useful estimate for the number of moving averages (MA) ciefficents in the model. The plot for wfc showsonly one MA coefficent will be required.
 
 ```{r Set_ChunkOptions, echo=FALSE}
 #Select Chunk and package options @ http://yihui.name/knitr/options
 knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='center', warning = FALSE,cache=FALSE)
 
 ```
+```{r Initial_Settings_n_Basic_Stat}
+#set working directory
+#setwd("C:/Users/gagranis/Documents/Finance/Coursera/qfinance")
+options(digits=4, width=70)
+library("forecast")
+
+```
+```{r}
+# Test for no autocorrelation in returns
+par <- par("mar")
+par(mar=rep(3,4))
+par(mfrow=c(2,2))
+acf(returns_lcc[,"wfc"])
+acf(returns_lcc[,"sp500"])
+acf(returns_lcc[,"vbltx"])
+ acf(returns_lcc[,"aapl"])
+# BOx-Pierce test  for autocorrelation
+Box.test(returns_lcc[,"wfc"])
+# The p value equal to 0.95 shows no autocorrelation.
+# Ljung-Box test is similar to the simple box.test, generally used for smaller samples.
+Box.test((returns_lcc[,"wfc"]), type="Ljung-Box")
+
+```
+
+## Partial Autocorrelation (PACF)
+
+Partial Autocorrelation is a tool to uderstand interrelationships in a time series.It is the correlation between all data points that are excatly n steps apart,after acounting for there correlation with the data betweeen those n steps.It helps to identify the number of autoregression(AR) coefficents in an ARIMA model.For wcf, no significant autocorrelation found.
+
+```{r}
+
+par <- par("mar")
+par(mar=rep(3,4))
+par(mfrow=c(2,2))
+pacf(returns_lcc[,"wfc"])
+pacf(returns_lcc[,"sp500"])
+pacf(returns_lcc[,"vbltx"])
+pacf(returns_lcc[,"aapl"])
+par(mfrow=c(1,1))
+
+```
+
+##Finding lagged correlation between two time series
+
+The cross correlation function helps to discover lagged correlations between two time series. Correlation at lag 0 is the simple correlation between the variables.
+
+```{r}
+
+ccf((returns_lcc[,"wfc"]),(returns_lcc[,"sp500"]))
+cor((returns_lcc[,"wfc"]),(returns_lcc[,"sp500"]))
+
+ccf((returns_lcc[,"vbltx"]),(returns_lcc[,"sp500"]))
+ccf((returns_lcc[,"aapl"]),(returns_lcc[,"sp500"]))
+ccf((returns_lcc[,"aapl"]),(returns_lcc[,"wfc"]))
+ 
+```
+## Fitting ARIMA MOdel
+
+Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. diagnostic checking(e.g.,model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff.; d= degree of differencing (AR); q= number of moving average coeff (MA).
+
+```{r}
+w<-(auto.arima(returns[,"wfc"]))
+confint(w)
+#wcf best order(0,1,0)
+auto.arima(returns[,"sp500"])
+#sp500 best order(1,1,0)
+auto.arima(returns[,"aapl"])
+#aapl best order(0,1,0)
+auto.arima(returns[,"vbltx"])
+#vbltx best order(0,1,2)
+```
+## Running diagnosis on an ARIMA Model
+```{r}
+tsdiag(w)
+```
+## Making forcast from an ARIMA Model
+The predict function will calculate both the next observation and its sd according the model.
+
+```{r}
+w1<-arima((returns[,"wfc"]),order=c(0,1,0))
+predict(w1)
+# To predict more than one value.
+predict(w1,n.ahead=10)
+# Notice that SE grows as each step of prediction.
+# visulize the prediction
+theForcast<-forecast(w1,h=5)
+plot(theForcast)
+
+```
+
+
 ## simulate Gaussian White Noise, GWN process
+
 The GWN process doesn't have any predictable pattern over time.
+
 ```{r}
 options(digits=4, width=70)
 
@@ -40,128 +135,4 @@ ts.plot(y,main="Gaussian White Noise Process",xlab="time",ylab="y(t)",
 abline(h=0)
 
 ```
-
-## simulate Gaussian White Noise process for cc returns
-
-- The cc returns for "wfc"" fluctuate around the mean value of 0.01 and the size of a typical deviation is about 0.05.
-
-- Deterministically trending process: This process is nonstationary becuase it depends on t. It can be transformed into a stationary process by simply subtracting off the trend.
-
-```{r, echo=FALSE}
-
-set.seed(123)
-y <- rnorm(60, mean=0.01, sd=0.05)
-ts.plot(y,main="GWN Process for Monthly Continuously Compounded Returns of wfc",
-        xlab="time",ylab="r(t)", col="blue", lwd=2, type="h")
-abline(h=c(0,-0.05,0.05), lwd=2, lty=c("solid","dotted","dotted"), 
-       col=c("black", "red", "red"))
-
-#Deterministically trending process
-set.seed(123)
-e <- rnorm(250)
-y_dt <-0.1*seq(250) + e
-ts.plot(y_dt, lwd=2, col="blue", main="Deterministic Trend + Noise")
-abline(a=0, b=0.1)
-
-```
-
-## MOving Average Model
-
-Moving average models are simple covariance stationary and ergodic time series models that can capture a wide variety of autocorrelation patterns. To create a covariance stationary and ergodic stochastic process in which yt and yt minus 1 are correlated but Yt and yt minus j are not correlated for j less then 1, where the time dependence in the process only lasts for one period. These processes can be created using the first order moving average (MA(1)) model. The moving average parameter, theta determines the sign and magnitude of the correlation between yt and yt minus 1. Clearly, if theta equals to 0 then yt exhibits no time dependence.
-
-```{r}
-#theta =0.9
-ma1_model <- list(ma=0.9)
-mu <- 1
-set.seed(123)
-ma1_sim <- mu + arima.sim(model=ma1_model,n=250)
-# ACF for MA(1) model
-#The function ARMAacf() can be used to compute the theoretical autocorrelations,from the MA(1) model
-
-ma1_acf <- ARMAacf(ar=0, ma=0.9, lag.max=10)
-par <- par("mar")
-par(mar=c(1,1,1,1))
-par(mfrow=c(2,1))
-ts.plot(ma1_sim,main="MA(1) Process: mu=1, theta=0.9",
-xlab="time",ylab="y(t)", col="blue", lwd=2)
-abline(h=c(0,1))
-
-plot(0:10, ma1_acf,type="h", col="blue", lwd=2,
-main="ACF for MA(1): theta=0.9",xlab="lag",ylab="rho(j)")
-abline(h=0)
-par(mfrow=c(1,1))
-
-# simulate AR(1) process: phi = -0.75
-ar1.model = list(ar=-0.75)
-mu = 1
-set.seed(123)
-ar1.sim = mu + arima.sim(model=ar1.model,n=250)
-
-# ACF for AR(1) model
-ar1.acf = ARMAacf(ar=-0.75, ma=0, lag.max=10)
-
-par(mfrow=c(2,1))
-ts.plot(ar1.sim,main="AR(1) Process: mu=1, phi=-0.75",col="blue", lwd=2,
-xlab="time",ylab="y(t)")
-abline(h=0)
-plot(0:10, ar1.acf,type="h", col="blue", lwd=2,
-main="ACF for AR(1): phi=-0.75",xlab="lag",ylab="rho(j)")
-abline(h=0)
-
-par(mfrow=c(1,1))
-
-
-
-# simulate AR(1) process: phi = 0.99
-ar1.model = list(ar=0.99)
-mu = 1
-set.seed(123)
-ar1.sim = mu + arima.sim(model=ar1.model,n=250)
-
-# ACF for AR(1) model
-ar1.acf = ARMAacf(ar=0.99, ma=0, lag.max=10)
-
-par(mfrow=c(2,1))
-ts.plot(ar1.sim,main="AR(1) Process: mu=1, phi=0.99",
-xlab="time",ylab="y(t)")
-abline(h=0)
-plot(0:10, ar1.acf,type="h", col="blue", lwd=2,
-main="ACF for AR(1): phi=0.99",xlab="lag",ylab="rho(j)")
-abline(h=0)
-par(mfrow=c(1,1))
-
-# simulate AR(1) process: phi = 1
-set.seed(123)
-ar1.sim = cumsum(rnorm(250))
-
-# simulate AR(1) process: phi > 1
-set.seed(123)
-phi = 1.01
-e = rnorm(250)
-y = rep(0,250)
-for (i in 2:250) {
-  y[i] = phi*y[i-1] + e[i]
-}
-
-par(mfrow=c(2,1))
-ts.plot(ar1.sim,main="AR(1) Process: phi=1",
-xlab="time",ylab="y(t)",lwd=2, col="blue")
-abline(h=0)
-ts.plot(y,main="AR(1) Process: phi=1.01",
-xlab="time",ylab="y(t)", lwd=2, col="blue")
-abline(h=0)
-par(mfrow=c(1,1))
-
-# do same plot but use layout() function
-layout(matrix(c(1,2,1,2), 2, 2))
-ts.plot(ar1.sim,main="AR(1) Process: phi=1",
-xlab="time",ylab="y(t)")
-abline(h=0)
-ts.plot(y,main="AR(1) Process: phi=1.01",
-xlab="time",ylab="y(t)")
-abline(h=0)
-
-
-```
-
 
