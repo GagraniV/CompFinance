@@ -14,7 +14,9 @@ output:
 
 ## Background and Objective
 
-The expected returns(average) are the best guesses for the monthly returns, however returns are random varibles therefore realized returns may be diffrent from our expectations. Variance provides a measure towards uncertain monthly returns, hence considered as a risk measurment tool. All wealth is exhoused between asset A and B. Monthly return is a linear combination or weighted average of the two returns.
+The expected returns(average) are the best guesses for the monthly returns, however returns are random varibles therefore realized returns may be diffrent from our expectations. Variance provides a measure towards uncertain monthly returns, hence considered as a risk measurment tool. All wealth is exhoused between asset A and B. Monthly return is a linear combination or weighted average of the two returns.http://faculty.washington.edu/ezivot/econ424/introductionPortfolioTheory.pdf.
+http://faculty.washington.edu/ezivot/econ424/portfolioTheoryMatrix.pdf
+http://faculty.washington.edu/ezivot/econ424/portfolio.r
 
 ```{r Set_ChunkOptions, echo=FALSE}
 #Select Chunk and package options @ http://yihui.name/knitr/options
