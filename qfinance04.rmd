@@ -1,15 +1,32 @@
-# introductionToPortfolioTheory_r
+
+---
+title: "Portfolio Theory"
+author: "Vijaya Gagrani"
+date: "May 2015"
+output:
+  slidy_presentation: default
+  ioslides_presentation:
+    keep_md: yes
+    transition: faster
+    widescreen: yes
+  beamer_presentation: default
+---
+
+## Background and Objective
+
+The expected returns(average) are the best guesses for the monthly returns, however returns are random varibles therefore realized returns may be diffrent from our expectations. Variance provides a measure towards uncertain monthly returns, hence considered as a risk measurment tool. All wealth is exhoused between asset A and B. Monthly return is a linear combination or weighted average of the two returns.
+
+```{r Set_ChunkOptions, echo=FALSE}
+#Select Chunk and package options @ http://yihui.name/knitr/options
+knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='center', warning = FALSE,cache=FALSE)
 
 options(digits=4, width=70)
 library("PerformanceAnalytics")
----
-The expected returns(average) are the best guesses for the monthly returns, however returns are random varibles therefore realized returns may be diffrent from our expectations. Variance provides a measure towards uncertain monthly returns, hence considered as a risk measurment tool. All wealth is exhoused between asset A and B. Monthly return is a linear combination or weighted average of the two returns.
-```{r}
-
 ```
-################################################################################
-# 2 asset example
-################################################################################
+
+## 2 asset example
+
+```{r}
 mu_A = 0.175
 sig_A = 0.258
 sig2_A = sig_A^2
@@ -18,15 +35,15 @@ sig_B = 0.115
 sig2_B = sig_B^2
 rho_AB = -0.164
 sig_AB = rho_AB*sig_A*sig_B
-w0 = 100000
+w0 = 1000
 VaR_A = (mu_A + sig_A*qnorm(0.05))*w0
 VaR_A
 VaR_B = (mu_B + sig_B*qnorm(0.05))*w0
 VaR_B
+```
 
-#
-# example portfolios and VaR
-#
+## example portfolios and VaR
+```{r}
 x_A = 0.5
 x_B = 0.5
 mu_p1 = x_A*mu_A + x_B*mu_B
@@ -40,49 +57,15 @@ VaR_p1
 # note: portfolio VaR is not a weighted average of individual asset VaR
 x_A*VaR_A + x_B*VaR_B
 
-
-x_A = 1.5
-x_B = -0.5
-mu_p2 = x_A*mu_A + x_B*mu_B
-sig2_p2 = x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB
-sig_p2 = sqrt(sig2_p2)
-mu_p2
-sig2_p2
-sig_p2
-VaR_p2 = (mu_p2 + sig_p2*qnorm(0.05))*w0
-VaR_p2
-# note: portfolio VaR is not a weighted average of individual asset VaR
-x_A*VaR_A + x_B*VaR_B
-
-# function to compute normal VaR
-normalVaR <- function(mu, sigma, w0, tail_prob = 0.01, invert=FALSE) {
-
-  if ( length(mu) != length(sigma) )
-    stop("mu and sigma must have same number of elements")
-  if ( tail_prob < 0 || tail_prob > 1)
-    stop("tail_prob must be between 0 and 1")
-  VaR = w0*(mu + sigma*qnorm(tail_prob))
-  if (invert) {
-    VaR = -VaR
-  }
-  return(VaR)
-}
-
-# compute VaR on three assets
-
-normalVaR(mu=c(mu_A, mu_B, mu_p1),
-          sigma=c(sig_A, sig_B, sig_p1),
-          w0=100000, tail_prob=0.05) 
+```
 
 ### mean-variance efficient portfolios
----
 Efficent portfolios have the highest expected return for a given level of risk.
-Assumptions: Returns are covariance stationary and ergodic, jointly normally distrbuted means means, variances, and covariances of returns are constant over the investment horizon.
-#For a given level of risk, combinations that are in the upper left conrner are the best (efficent portfolios) and those in the lower right corner(inefficent portfolios) are the worst portfolios. portfolio at the bottom of the parabola has the smallest variance among all fesiable protfolio and called global minimum variance portfolio. 
+Assumptions: Returns are covariance stationary and ergodic, jointly normally distrbuted means means, variances, and covariances of returns are constant over the investment horizon.For a given level of risk, combinations that are in the upper left conrner are the best (efficent portfolios) and those in the lower right corner(inefficent portfolios) are the worst portfolios. portfolio at the bottom of the parabola has the smallest variance among all fesiable protfolio and called global minimum variance portfolio. 
 
 
 ```{r}
-```
+
 
 x_A = seq(from=-0.4, to=1.4, by=0.1)
 x_B = 1 - x_A
@@ -187,10 +170,12 @@ text(x=sig_p[3], y=mu_p[11], labels="Efficient portfolio",
      cex = cex_val, pos=4)
 
 
-#
-# portfolios with 1 risky asset and T-Bills
-# Since the risk free rate fixed over the investment horizon. excess return over thr T-bills
- or risk premimum. Capital allocation line(CAL). The slope of CAl is called sharpe ration(SR).
+```
+
+## portfolios with 1 risky asset and T-Bills. Since the risk free rate fixed over the investment horizon. excess return over thr T-bills or risk premimum. Capital allocation line(CAL). The slope of CAl is called sharpe ration(SR).
+```{r}
+
+
 r_f = 0.03
 # T-bills + asset A
 x_A = seq(from=0, to=1.4, by=0.1)
@@ -322,9 +307,12 @@ text(x=sig_B, y=mu_p1_e, labels="e1", pos=3, cex = cex_val)
 text(x=sig_p2_e, y=mu_B, labels="e2", pos=3, cex = cex_val)
 
 
-################################################################################
+```
+
 # risk budgeting
-################################################################################
+
+```{r}
+
 
 riskBudgetSD <- function(x_A, x_B, mu_A, mu_B, sig2_A, sig2_B, sig_AB) {
   sig_p = sqrt(x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB)
@@ -378,5 +366,4 @@ x_A = 1.5
 x_B = -0.5
 rb_VaR = riskBudgetVaR(x_A, x_B, mu_A, mu_B, sig2_A, sig2_B, sig_AB)             
 rb_VaR
-
-        Enter file contents here
+```
