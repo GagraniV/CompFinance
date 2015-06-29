@@ -13,18 +13,17 @@ output:
 
 ## Background and Objective
 
-The basic assumption for the time series data are that varibles are identically distributed but expected to have some dependency between random varibles close togather in time, but not far apart in time. These assumptioon can be explained by stationarity and ergodicity concepts. 
+The basic assumption for the time series is that the data points are randomly distributed and have some dependency between data points close togather in time but no dependancy in data points far apart in time. These assumptioon can be explained by the stationarity and ergodicity concepts. 
 
-In a stationary stochastic process, the joint distribution of random variables is time invariant. The autocovariances and autocorrelations are measures of the linear temporal dependence in a covariance stationary stochastic process, known as autocorrelation function (ACF).The ACF revels the interrelationships within a time series or correlation between allpairs of data points that are exactly same steps appart.
+In a stationary stochastic process, the joint distribution of data points is time invariant. The autocovariances and autocorrelations are the measures of linear temporal dependence in a covariance stationary stochastic process, known as autocorrelation function (ACF). The ACF revels the interrelationships within a time series or correlation between all pairs of data points that are exactly same steps appart.
 
-In a strictly stationary or covariance stationary stochastic process no assumption is made about the strength of dependence between random variables in the sequence. The strength of dependence between random variables in a stochastic process diminishes the farther apart they become. This diminishing dependence assumption is captured by the concept of ergodicity. A stochastic process is ergodic if any two collections of random points partitioned far apart in the sequence.
+In a strictly stationary or covariance stationary stochastic process no assumption is made about the strength of dependence between random data points in the sequence. The strength of dependence between random points in a stochastic process diminishes the farther apart they become. This diminishing dependence assumption is captured by the concept of ergodicity. A stochastic process is ergodic if any two collections of random points partitioned far apart in the sequence.
 
 An important class of linear time series models is the family of Autoregressive Integrated Moving Average (ARIMA) models, proposed by Box and Jenkins (1976). It assumes that the current value can depend only on the past values of the time series itself or on past values of some error term.
 
 Moving average models are simple covariance stationary and ergodic time series models that can capture a wide variety of autocorrelation patterns. To create a covariance stationary and ergodic stochastic process in which yt and yt minus 1 are correlated but Yt and yt minus j are not correlated for j less then 1, where the time dependence in the process only lasts for one period. These processes can be created using the first order moving average (MA(1)) model. The moving average parameter, theta determines the sign and magnitude of the correlation between yt and yt minus 1. Clearly, if theta equals to 0 then yt exhibits no time dependence.
 
-
-The presence of autocorrelation is one indication that an ARIMA model could be used to model the time series.From ACF plot, one can count number of significant autocorrelations, which is a useful estimate for the number of moving averages (MA) ciefficents in the model. The plot for wfc showsonly one MA coefficent will be required.
+The presence of autocorrelation is one indication that an ARIMA model could be used to model the time series. From ACF plot, one can count number of significant autocorrelations, which is a useful estimate for the number of moving averages (MA) coefficents in the model. The plot for wfc showsonly one MA coefficent will be required.
 
 ```{r Set_ChunkOptions, echo=FALSE}
 #Select Chunk and package options @ http://yihui.name/knitr/options
@@ -57,7 +56,7 @@ Box.test((returns_lcc[,"wfc"]), type="Ljung-Box")
 
 ## Partial Autocorrelation (PACF)
 
-Partial Autocorrelation is a tool to uderstand interrelationships in a time series.It is the correlation between all data points that are excatly n steps apart,after acounting for there correlation with the data betweeen those n steps.It helps to identify the number of autoregression(AR) coefficents in an ARIMA model.For wcf, no significant autocorrelation found.
+Partial Autocorrelation is a tool to uderstand interrelationships in a time series. It is the correlation between all data points that are excatly n steps apart,after acounting for there correlation with the data betweeen those n steps. It helps to identify the number of autoregression(AR) coefficents in an ARIMA model. For wcf, no significant partial autocorrelation found.
 
 ```{r}
 
@@ -88,7 +87,7 @@ ccf((returns_lcc[,"aapl"]),(returns_lcc[,"wfc"]))
 ```
 ## Fitting ARIMA MOdel
 
-Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. diagnostic checking(e.g.,model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff.; d= degree of differencing (AR); q= number of moving average coeff (MA).
+Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. Diagnostic checking(e.g.,model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff.; d= degree of differencing (AR); q= number of moving average coeff (MA).
 
 ```{r}
 w<-(auto.arima(returns[,"wfc"]))
@@ -106,7 +105,7 @@ auto.arima(returns[,"vbltx"])
 tsdiag(w)
 ```
 ## Making forcast from an ARIMA Model
-The predict function will calculate both the next observation and its sd according the model.
+The predict function calculates both the next observation and sd according the model.
 
 ```{r}
 w1<-arima((returns[,"wfc"]),order=c(0,1,0))
