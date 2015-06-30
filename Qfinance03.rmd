@@ -118,5 +118,44 @@ theForcast<-forecast(w1,h=5)
 plot(theForcast)
 
 ```
+```{r}
+Interest rates are downloaded from the FRED (Federal Reserve Economic Data) data source.
+var1 <- VAR(dataDaily, lag.max=4, ic="AIC")
+rugarch, rmgarch (for multivariate models), 
+library (Quantmod)
+
+```
+## Volatility forcasting for risk managmnet
+Financial institutions measure the risk using a Value-at-Risk (VaR), usually calculated at the 99% confidence level. For stock proces, the low volatility period is followed by periods of high volatility and vice versa. This phenomenon is the base assumption in ARCH('Autoregressive Conditional Heteroskedasticity) model. A simple line plot of returns shows it.  We can test it by using two commonly uded tests(•The Ljung-Box test for autocorrelation in squared returns and the Lagrange Multiplier (LM)).
+For financial time series model GARCH is commonly used. In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
+```{r}
+Box.test(coredata(intc^2), type = "Ljung-Box", lag = 12)
+#Reject the null hypothesis of no autocorrelations in the squared returns at the 1% significance level
+install.packages("FinTS")
+library("FinTS")
+ArchTest(coredata(intc))
+
+library("rugarch")
+#specify the model
+intc_garch11_spec <- ugarchspec(variance.model = list(+   garchOrder = c(1, 1)),+  mean.model = list(armaOrder = c(0, 0)))
+#model estimation
+intc_garch11_fit <- ugarchfit(spec = intc_garch11_spec,+  data = intc)
+#backtesting: to check the model perfromance 
+intc_garch11_roll <- ugarchroll(intc_garch11_spec, intc,+   n.start = 120, refit.every = 1, refit.window = "moving",+   solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,+   keep.coef = TRUE)
+#examining backtest report
+report(intc_garch11_roll, type = "VaR", VaR.alpha = 0.01,+   conf.level = 0.99)
+#Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. In our case, despite the actual five exceedances versus an expectation of three, we can't reject the null hypothesis that the exceedances are correct and independent.
+intc_VaR <- zoo(intc_garch11_roll@forecast$VaR[, 1])
+index(intc_VaR) <- as.yearmon(rownames(intc_garch11_roll@forecast$VaR))
+intc_actual <- zoo(intc_garch11_roll@forecast$VaR[, 2])
+index(intc_actual) <- as.yearmon(rownames(intc_garch11_roll@forecast$VaR))
+plot(intc_actual, type = "b", main = "99% 1 Month VaR Backtesting",+   xlab = "Date", ylab = "Return/VaR in percent")
+lines(intc_VaR, col = "red")
+legend("topright", inset=.05, c("Intel return","VaR"), col = c("black","red"), lty = c(1,1))
+#forecasting
+intc_garch11_fcst <- ugarchforecast(intc_garch11_fit, n.ahead = 12)
+
+
+```
 
 
