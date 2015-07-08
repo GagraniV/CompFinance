@@ -1,5 +1,5 @@
 ---
-title: "Describing and modeling finacial time series"
+title: "Finacial time series modeling and forcasting with R"
 author: "Vijaya Gagrani"
 date: "May 2015"
 output:
@@ -87,7 +87,7 @@ ccf((returns_lcc[,"aapl"]),(returns_lcc[,"wfc"]))
 ```
 ## Fitting ARIMA Model
 
-Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. Diagnostic checking(e.g.,model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff.; d= degree of differencing (AR); q= number of moving average coeff (MA).
+Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. Diagnostic checking(e.g.,model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff.; d= degree of differencing (AR); q = number of moving average coeff (MA).
 
 ```{r}
 w<-(auto.arima(returns[,"wfc"]))
@@ -125,21 +125,20 @@ rugarch, rmgarch (for multivariate models),
 library (Quantmod)
 
 ```
-## Volatility Forcasting for Risk Managmnet
-The univariate volatility models included in this script are ARCH, GARCH, and EGRCH. These models are based on a least squares models assumptions that the expected value of all squared error terms or variance is same at any given point (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points.
-Volatility is important in assessing financial risk, portfolio selection, and derivative pricing. However, in financial time series, the volatility occurs in clusters like periods of high volatility follows with high volatility and vice versa.  In addtion, for financial time series more recent events would be more relevant then the distant past events.  ARCH or the Autoregressive Conditional Heteroskedasticity models utilize the heteroskedasticity in time series data to provide a volatility (standard deviation) measure. THE ARCH models are applied to forecast mean and variance of return based on the past information. These models allow to use the best weights in forecasting variance instead of using equal weights for all past events.
+## Finacial risk volatility modeling (ARCH, GARCH, & EGRCH) with R
 
-An ARCH is like an AR (1) model on squared residuals. In an ARCH (1) model, next period’s variance only depends on last period’s squared residual. The ARCH model is extended as a Generalized ARCH or GARCH model by making it conditional to both squared residuals and squared observations in past. The typical GARCH model is described as GARCH(1,1) model. The first subscript in GARCH reefers to autoregressive lags or ARCH and second subscript refers to the moving average lags, respectively. These models are basically setup for one period forecast, but a long-horizon forecasting can be constructed. The ARCH/GARCH approaches are widely used in situations where volatility of return is a central issue. Finaclial institutes uses VaR as a way to measure the portfolio risk. 
- 
+Finacial risk univariate volatility models included in this analyis are ARCH, GARCH, and EGRCH. These models are based on a least squares models assumptions that the expected value of all squared error terms or variance is same at any given point (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points, and thats what the center of the Autoregressive Conditional Heteroskedasticity models (ARCH).
 
+Volatility is important in assessing financial risk, portfolio selection, and derivative pricing. However, in financial time series, volatility occurs in clusters like periods of high volatility follows with high volatility and vice versa.  In addtion, for financial time series more recent events would be more relevant then the distant past events.  ARCH models utilize the heteroskedasticity in time series data to measure volatility (standard deviation). THE ARCH models are applied to forecast mean and variance of return based on the past information. In addtion, these models allow to use the best weights in forecasting variance instead of using equal weights for all past events.
+
+An ARCH model is similat to an AR (1) model on squared residuals. In an ARCH (1) model, next period’s variance only depends on last period’s squared residual. The ARCH model is extended as a Generalized ARCH or GARCH model by making it conditional to both squared residuals and squared observations in past. The typical GARCH model is described as GARCH(1,1) model. The first subscript in GARCH reefers to autoregressive lags or ARCH and second subscript refers to the moving average lags, respectively. These models are basically setup for one period forecast, however a long-horizon forecasting can be constructed. The ARCH/GARCH approaches are widely used in situations where volatility of return is a central issue.  
 http://www.cmat.edu.uy/~mordecki/hk/engle.pdf
 http://faculty.washington.edu/ezivot/econ589/econ589univariateGarch.r
 http://www.r-bloggers.com/a-practical-introduction-to-garch-modeling/
 https://onlinecourses.science.psu.edu/stat510/node/61
 
 
-Financial institutions measure the risk using a Value-at-Risk (VaR), usually calculated at the 99% confidence level. For stock proces, the low volatility period is followed by periods of high volatility and vice versa. This phenomenon is the base assumption in ARCH('Autoregressive Conditional Heteroskedasticity) model. A simple line plot of returns shows it.  We can test it by using two commonly uded tests(•The Ljung-Box test for autocorrelation in squared returns and the Lagrange Multiplier (LM)).
-For financial time series model GARCH is commonly used. In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
+Financial institutions measure the risk using a Value-at-Risk (VaR), usually calculated at the 99% confidence level. Generally, a stock prices shows the low volatility periods followed by periods of high volatility and vice versa. This phenomenon is visually detectable in simple line plots. In addtion,we can test it applying the two commonly used tests(The Ljung-Box test for autocorrelation in squared returns and the Lagrange Multiplier (LM)). In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
 ```{r}
 Box.test(coredata(intc^2), type = "Ljung-Box", lag = 12)
 #Reject the null hypothesis of no autocorrelations in the squared returns at the 1% significance level
