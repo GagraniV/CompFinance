@@ -1,6 +1,6 @@
 
 ---
-title: "Portfolio Theory"
+title: "Finacial risk volatility modeling (ARCH, GARCH, & EGRCH) with R"
 author: "Vijaya Gagrani"
 date: "May 2015"
 output:
@@ -14,358 +14,44 @@ output:
 
 ## Background and Objective
 
-The expected returns(average) are the best guesses for the monthly returns, however returns are random varibles therefore realized returns may be diffrent from our expectations. Variance provides a measure towards uncertain monthly returns, hence considered as a risk measurment tool. All wealth is exhoused between asset A and B. Monthly return is a linear combination or weighted average of the two returns.http://faculty.washington.edu/ezivot/econ424/introductionPortfolioTheory.pdf.
-http://faculty.washington.edu/ezivot/econ424/portfolioTheoryMatrix.pdf
-http://faculty.washington.edu/ezivot/econ424/portfolio.r
+Finacial risk univariate volatility models included in this analyis are ARCH, GARCH, and EGRCH. These models are based on a least squares models assumptions that the expected value of all squared error terms or variance is same at any given point (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points, and thats what the center of the Autoregressive Conditional Heteroskedasticity models (ARCH).
 
-```{r Set_ChunkOptions, echo=FALSE}
-#Select Chunk and package options @ http://yihui.name/knitr/options
-knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='center', warning = FALSE,cache=FALSE)
+Volatility is important in assessing financial risk, portfolio selection, and derivative pricing. However, in financial time series, volatility occurs in clusters like periods of high volatility follows with high volatility and vice versa.  In addtion, for financial time series more recent events would be more relevant then the distant past events.  ARCH models utilize the heteroskedasticity in time series data to measure volatility (standard deviation). THE ARCH models are applied to forecast mean and variance of return based on the past information. In addtion, these models allow to use the best weights in forecasting variance instead of using equal weights for all past events.
 
-options(digits=4, width=70)
-library("PerformanceAnalytics")
-```
+An ARCH model is simila to the AR (1) model on squared residuals. In an ARCH (1) model, next period’s variance only depends on last period’s squared residual. The ARCH model is extended as a Generalized ARCH or GARCH model by making it conditional to both squared residuals and squared observations in past. The typical GARCH model is described as GARCH(1,1) model. The first subscript in GARCH reefers to autoregressive lags or ARCH and second subscript refers to the moving average lags, respectively. These models are basically setup for one period forecast, however a long-horizon forecasting can be constructed. The ARCH/GARCH approaches are widely used in situations where volatility of return is a central issue.  
+http://www.cmat.edu.uy/~mordecki/hk/engle.pdf
+http://faculty.washington.edu/ezivot/econ589/econ589univariateGarch.r
+http://www.r-bloggers.com/a-practical-introduction-to-garch-modeling/
+https://onlinecourses.science.psu.edu/stat510/node/61
 
-## 2 asset example
 
+Financial institutions measure the risk using a Value-at-Risk (VaR), usually calculated at the 99% confidence level. Generally, for a stock prices the low volatility periods follows by the periods of high volatility and vice versa (cluster volatility). This phenomenon is visually detectable in simple line plots. In addtion, we can test it applying the two commonly used tests(The Ljung-Box test for autocorrelation in squared returns and the Lagrange Multiplier (LM test)). In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
 ```{r}
-mu_A = 0.175
-sig_A = 0.258
-sig2_A = sig_A^2
-mu_B = 0.055
-sig_B = 0.115
-sig2_B = sig_B^2
-rho_AB = -0.164
-sig_AB = rho_AB*sig_A*sig_B
-w0 = 1000
-VaR_A = (mu_A + sig_A*qnorm(0.05))*w0
-VaR_A
-VaR_B = (mu_B + sig_B*qnorm(0.05))*w0
-VaR_B
-```
+Box.test(coredata(intc^2), type = "Ljung-Box", lag = 12)
+#Reject the null hypothesis of no autocorrelations in the squared returns at the 1% significance level
+#LM test
+install.packages("FinTS")
+library("FinTS")
+ArchTest(coredata(intc))
 
-## example portfolios and VaR
-```{r}
-x_A = 0.5
-x_B = 0.5
-mu_p1 = x_A*mu_A + x_B*mu_B
-sig2_p1 = x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB
-sig_p1 = sqrt(sig2_p1)
-mu_p1
-sig2_p1
-sig_p1
-VaR_p1 = (mu_p1 + sig_p1*qnorm(0.05))*w0
-VaR_p1
-# note: portfolio VaR is not a weighted average of individual asset VaR
-x_A*VaR_A + x_B*VaR_B
+library("rugarch")
+#specify the model
+intc_garch11_spec <- ugarchspec(variance.model = list(+   garchOrder = c(1, 1)),+  mean.model = list(armaOrder = c(0, 0)))
+#model estimation
+intc_garch11_fit <- ugarchfit(spec = intc_garch11_spec,+  data = intc)
+#backtesting: to check the model perfromance 
+intc_garch11_roll <- ugarchroll(intc_garch11_spec, intc,+   n.start = 120, refit.every = 1, refit.window = "moving",+   solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,+   keep.coef = TRUE)
+#examining backtest report
+report(intc_garch11_roll, type = "VaR", VaR.alpha = 0.01,+   conf.level = 0.99)
+#Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. In our case, despite the actual five exceedances versus an expectation of three, we can't reject the null hypothesis that the exceedances are correct and independent.
+intc_VaR <- zoo(intc_garch11_roll@forecast$VaR[, 1])
+index(intc_VaR) <- as.yearmon(rownames(intc_garch11_roll@forecast$VaR))
+intc_actual <- zoo(intc_garch11_roll@forecast$VaR[, 2])
+index(intc_actual) <- as.yearmon(rownames(intc_garch11_roll@forecast$VaR))
+plot(intc_actual, type = "b", main = "99% 1 Month VaR Backtesting",+   xlab = "Date", ylab = "Return/VaR in percent")
+lines(intc_VaR, col = "red")
+legend("topright", inset=.05, c("Intel return","VaR"), col = c("black","red"), lty = c(1,1))
+#forecasting
+intc_garch11_fcst <- ugarchforecast(intc_garch11_fit, n.ahead = 12)
 
-```
-
-### mean-variance efficient portfolios
-Efficent portfolios have the highest expected return for a given level of risk.
-Assumptions: Returns are covariance stationary and ergodic, jointly normally distrbuted means means, variances, and covariances of returns are constant over the investment horizon.For a given level of risk, combinations that are in the upper left conrner are the best (efficent portfolios) and those in the lower right corner(inefficent portfolios) are the worst portfolios. portfolio at the bottom of the parabola has the smallest variance among all fesiable protfolio and called global minimum variance portfolio. 
-
-
-```{r}
-
-
-x_A = seq(from=-0.4, to=1.4, by=0.1)
-x_B = 1 - x_A
-mu_p = x_A*mu_A + x_B*mu_B
-sig2_p = x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB
-sig_p = sqrt(sig2_p)
-
-# minimum variance portfolio
-# global minmum protfolio: Lagrange multipliers
-
-xA_min = (sig2_B - sig_AB)/(sig2_A + sig2_B - 2*sig_AB)
-xB_min = 1 - xA_min
-xA_min
-xB_min
-mu_p_min = xA_min*mu_A + xB_min*mu_B
-sig2_p_min = xA_min^2 * sig2_A + xB_min^2 * sig2_B + 2*xA_min*xB_min*sig_AB
-sig_p_min = sqrt(sig2_p_min)
-mu_p_min
-sig_p_min
-
-# create portfolio plot
-cex_val = 2
-plot(sig_p, mu_p, type="b", pch=16, cex = cex_val,
-     ylim=c(0, max(mu_p)), xlim=c(0, max(sig_p)),
-     xlab=expression(sigma[p]), ylab=expression(mu[p]), cex_lab=cex_val,
-     col=c(rep("red", 6), "blue", rep("green", 12)))
-text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
-text(x=sig_B, y=mu_B, labels="Asset B", pos=4, cex = cex_val)
-text(x=sig_p_min, y=mu_p_min, labels="Global min", pos=2, cex = cex_val)
-
-
-# portfolio frontier with varying values of rho
-# The shape of the investment possibilities set is senstive to the correlation between assessts.
-rho_AB_vals = c(-0.9,-0.5, -0.25, 0, 0.25, 0.5, 0.9)
-x_A = seq(from=-0.4, to=1.4, by=0.1)
-x_B = 1 - x_A
-mu_p = x_A*mu_A + x_B*mu_B
-sig2_p = x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*rho_AB_vals[1]*sig_A*sig_B
-sig_p = sqrt(sig2_p)
-
-# create portfolio plot
-cex_val = 1.5
-plot(sig_p, mu_p, type="b", pch=16, cex = cex_val,
-     ylim=c(0, max(mu_p)), xlim=c(0, max(sig_p)),
-     xlab=expression(sigma[p]), ylab=expression(mu[p]),
-     cex_lab = cex_val, col=1)
-text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
-text(x=sig_B, y=mu_B, labels="Asset B", pos=4, cex = cex_val)
-
-for (i in 2:length(rho_AB_vals)) {
-  sig2_p = x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*rho_AB_vals[i]*sig_A*sig_B
-  sig_p = sqrt(sig2_p)
-  points(sig_p, mu_p, type="b", pch=16, col=i, cex=cex_val)
-}
-legend(x="bottomright", legend=paste("rho", as_character(rho_AB_vals), sep="="), 
-       col=1:length(rho_AB_vals), lty=1, pch=16, cex = cex_val)
-
-#
-# show portfolio plot with rho = 1 and rho = -1
-#
-rho_AB = 1
-sig_AB = rho_AB*sig_A*sig_B
-mu_p_1 = x_A*mu_A + x_B*mu_B
-sig2_p_1 = x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB
-sig_p_1 = sqrt(sig2_p_1)
-rho_AB = -1
-sig_AB = rho_AB*sig_A*sig_B
-mu_p_m1 = x_A*mu_A + x_B*mu_B
-sig2_p_m1 = x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB
-sig_p_m1 = sqrt(sig2_p_m1)
-
-plot(sig_p_1, mu_p_1, type="b", pch=16, cex = cex_val,
-     ylim=c(0, max(mu_p)), xlim=c(0, max(sig_p)),
-     xlab=expression(sigma[p]), ylab=expression(mu[p]))
-points(sig_p_m1, mu_p_m1, type="b", col="blue", pch=22, cex = cex_val)
-text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
-text(x=sig_B, y=mu_B, labels="Asset B", pos=4, cex = cex_val)
-legend(x="topleft", legend=c(expression(rho==1), expression(rho==-1)),
-       col=c("black", "blue"), pch=c(16,22), cex = cex_val)
-
-#
-# show efficient portfolios
-#
-rho_AB = -0.164
-sig_AB = rho_AB*sig_A*sig_B
-x_A = seq(from=-0_4, to=1_4, by=0_1)
-x_B = 1 - x_A
-mu_p = x_A*mu_A + x_B*mu_B
-sig2_p = x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB
-sig_p = sqrt(sig2_p)
-plot(sig_p, mu_p, type="b", pch=16, ylim=c(0, max(mu_p)), cex = cex_val,
-     xlim=c(0, max(sig_p)),
-     xlab=expression(sigma[p]), ylab=expression(mu[p]),
-     col=c(rep("red", 6), rep("green", 13)))
-text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
-text(x=sig_B, y=mu_B, labels="Asset B", pos=4, cex = cex_val)
-segments(x0=sig_p[3], y0=0, x1=sig_p[3], y1=mu_p[11], 
-         lwd=3, lty="dotted")
-text(x=sig_p[3], y=mu_p[3], labels="Inefficient portfolio", 
-     pos=4, cex = cex_val)
-text(x=sig_p[3], y=mu_p[11], labels="Efficient portfolio", 
-     cex = cex_val, pos=4)
-
-
-```
-
-## portfolios with 1 risky asset and T-Bills. Since the risk free rate fixed over the investment horizon. excess return over thr T-bills or risk premimum. Capital allocation line(CAL). The slope of CAl is called sharpe ration(SR).
-```{r}
-
-
-r_f = 0.03
-# T-bills + asset A
-x_A = seq(from=0, to=1.4, by=0.1)
-mu_p_A = r_f + x_A*(mu_A - r_f)
-sig_p_A = x_A*sig_A
-sharpe_A = (mu_A - r_f)/sig_A
-sharpe_A
-# T-bills + asset B
-x_B = seq(from=0, to=1.4, by=0.1)
-mu_p_B = r_f + x_B*(mu_B - r_f)
-sig_p_B = x_B*sig_B
-sharpe_B = (mu_B - r_f)/sig_B
-sharpe_B
-
-
-# plot portfolios of T-Bills and assets A and B
-plot(sig_p_A, mu_p_A, type="b", col="green", ylim=c(0, max(mu_p_A)),
-     xlim=c(0, max(sig_p_A, sig_p_B)), pch=16, cex = cex_val,
-     xlab=expression(sigma[p]), ylab=expression(mu[p]), cex_lab = cex_val)
-points(sig_p_B, mu_p_B, type="b", col="red", pch=16, cex = cex_val)
-text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
-text(x=sig_B, y=mu_B, labels="Asset B", pos=1, cex = cex_val)
-text(x=0, y=r_f, labels=expression(r[f]), pos=2, cex = cex_val)
-
-#
-# portfolios of 2 risky assets and T-Bills
-#
-rho_AB = -0.164
-sig_AB = rho_AB*sig_A*sig_B
-top = (mu_A - r_f)*sig2_B - (mu_B - r_f)*sig_AB
-bot = (mu_A - r_f)*sig2_B + (mu_B - r_f)*sig2_A - (mu_A - r_f + mu_B - r_f)*sig_AB
-x_A_tan = top/bot
-x_B_tan = 1 - x_A_tan
-x_A_tan
-x_B_tan
-mu_p_tan = x_A_tan*mu_A + x_B_tan*mu_B
-sig2_p_tan = x_A_tan^2 * sig2_A + x_B_tan^2 * sig2_B + 2*x_A_tan*x_B_tan*sig_AB
-sig_p_tan = sqrt(sig2_p_tan)
-mu_p_tan
-sig_p_tan
-
-# T-bills plus tangency
-x_tan = seq(from=0, to=2.4, by=0.1)
-mu_p_tan_tbill = r_f + x_tan*(mu_p_tan - r_f)
-sig_p_tan_tbill = x_tan*sig_p_tan
-
-# plot portfolios w/o tangency portfolio
-plot(sig_p, mu_p, type="b", pch=16, cex = cex_val,
-     ylim=c(0, max(mu_p)), xlim=c(0, max(sig_p)),
-     xlab=expression(sigma[p]), ylab=expression(mu[p]), cex_lab = cex_val)
-text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
-text(x=sig_B, y=mu_B, labels="Asset B", pos=4, cex = cex_val)
-text(x=sig_p_min, y=mu_p_min, labels="Global min", pos=4, cex = cex_val)
-text(x=0, y=r_f, labels=expression(r[f]), pos=2, cex = cex_val)
-text(x=sig_p_tan, y=mu_p_tan, labels="Tangency", pos=2, cex = cex_val)
-points(sig_p_A, mu_p_A, type="b", col="red", pch=16, cex = cex_val)
-points(sig_p_B, mu_p_B, type="b", col="blue", pch=16, cex = cex_val)
-
-# plot portfolios with tangency portfolio
-plot(sig_p, mu_p, type="b", pch=16, cex = cex_val,
-     ylim=c(0, max(mu_p)), xlim=c(0, max(sig_p)),
-     xlab=expression(sigma[p]), ylab=expression(mu[p]), cex_lab = cex_val)
-text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
-text(x=sig_B, y=mu_B, labels="Asset B", pos=4, cex = cex_val)
-text(x=sig_p_min, y=mu_p_min, labels="Global min", pos=4, cex = cex_val)
-text(x=0, y=r_f, labels=expression(r[f]), pos=2, cex = cex_val)
-text(x=sig_p_tan, y=mu_p_tan, labels="Tangency", pos=2, cex = cex_val)
-points(sig_p_A, mu_p_A, type="b", col="red", pch=16, cex = cex_val)
-points(sig_p_B, mu_p_B, type="b", col="blue", pch=16, cex = cex_val)
-points(sig_p_tan_tbill, mu_p_tan_tbill, type="b", col="green", pch=16, cex = cex_val)
-
-#
-# interpreting efficient portfolios
-#
-
-# safe portfolio: 10% in tangency and 90% in T-bills
-mu_safe = r_f + 0.10*(mu_p_tan - r_f)
-sig_safe = 0.10*sig_p_tan
-# risky portfolio: 110% in tangency and -10% in T-bills
-mu_risky = r_f + 2*(mu_p_tan - r_f)
-sig_risky = 2*sig_p_tan
-plot(sig_p, mu_p, type="b", pch=16, cex = cex_val,
-     ylim=c(0, max(mu_p)), xlim=c(0, max(sig_p)), cex_lab = cex_val,
-     xlab=expression(sigma[p]), ylab=expression(mu[p]))
-text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
-text(x=sig_B, y=mu_B, labels="Asset B", pos=4, cex = cex_val)
-text(x=sig_p_min, y=mu_p_min, labels="Global min", pos=4, cex = cex_val)
-text(x=0, y=r_f, labels=expression(r[f]), pos=2, cex = cex_val)
-text(x=sig_p_tan, y=mu_p_tan, labels="Tangency", pos=2, cex = cex_val)
-points(x=sig_p_tan, y=mu_p_tan, pch=16, cex=2, col="green")
-points(sig_p_tan_tbill, mu_p_tan_tbill, type="b", col="green", 
-       pch=16, cex = cex_val)
-points(x=sig_safe, y=mu_safe, pch=16, cex=2)
-text(x=sig_safe, y=mu_safe, labels="Safe", pos=3, cex = cex_val)
-points(x=sig_risky, y=mu_risky, pch=16, cex=2)
-text(x=sig_risky, y=mu_risky, labels="Risky", pos=3, cex = cex_val)
-
-# find combination of T-bills and tangency that has same SD as asset B
-x_t1 = sig_B/sig_p_tan
-x_t1
-mu_p1_e = r_f + x_t1*(mu_p_tan - r_f)
-mu_p1_e
-sig_p1_e = x_t1*sig_p_tan
-sig_p1_e
-
-# find combination of T-bills and tangency that has same ER as asset B
-x_t2 = (mu_B - r_f)/(mu_p_tan - r_f)
-x_t2
-mu_p2_e = r_f + x_t2*(mu_p_tan - r_f)
-mu_p2_e
-sig_p2_e = x_t2*sig_p_tan
-sig_p2_e
-
-plot(sig_p, mu_p, type="b", pch=16, cex = cex_val,
-     ylim=c(0, max(mu_p)), xlim=c(0, max(sig_p)),
-     xlab=expression(sigma[p]), ylab=expression(mu[p]))
-text(x=sig_A, y=mu_A, labels="Asset A", pos=4, cex = cex_val)
-text(x=sig_B, y=mu_B, labels="Asset B", pos=4, cex = cex_val)
-text(x=sig_p_min, y=mu_p_min, labels="Global min", pos=4, cex = cex_val)
-text(x=0, y=r_f, labels=expression(r[f]), pos=2, cex = cex_val)
-text(x=sig_p_tan, y=mu_p_tan, labels="Tangency", pos=4, cex = cex_val)
-points(x=sig_p_tan, y=mu_p_tan, pch=16, cex=1_5, col="green", cex = cex_val)
-points(sig_p_tan_tbill, mu_p_tan_tbill, type="b", col="green", pch=16, cex = cex_val)
-segments(x0=sig_B, y0=0, x1=sig_B, y1=mu_p1_e, lwd=3, lty="dotted")
-segments(x0=sig_B, y0=mu_p1_e, x1=0, y1=mu_p1_e, lwd=3, lty="dotted")
-segments(x0=sig_p2_e, y0=0, x1=sig_p2_e, y1=mu_p2_e, lwd=3, lty="dotted")
-segments(x0=0, y0=mu_p2_e, x1=sig_B, y1=mu_p2_e, lwd=3, lty="dotted")
-text(x=sig_B, y=mu_p1_e, labels="e1", pos=3, cex = cex_val)
-text(x=sig_p2_e, y=mu_B, labels="e2", pos=3, cex = cex_val)
-
-
-```
-
-# risk budgeting
-
-```{r}
-
-
-riskBudgetSD <- function(x_A, x_B, mu_A, mu_B, sig2_A, sig2_B, sig_AB) {
-  sig_p = sqrt(x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB)
-  mcr_A = (x_A*sig2_A + x_B*sig_AB)/sig_p
-  mcr_B = (x_B*sig2_B + x_A*sig_AB)/sig_p
-  cr_A = x_A*mcr_A
-  cr_B = x_B*mcr_B
-  pcr_A = cr_A/sig_p
-  pcr_B = cr_B/sig_p
-  ans = list(sig_p=sig_p,
-             x=c(x_A, x_B),
-             mcr = c(mcr_A, mcr_B),
-             cr = c(cr_A, cr_B),
-             pcr = c(pcr_A, pcr_B))
-  return(ans)
-}             
-x_A = 0.5
-x_B = 0.5
-rb_sd = riskBudgetSD(x_A, x_B, mu_A, mu_B, sig2_A, sig2_B, sig_AB)             
-rb_sd
-x_A = 1.5
-x_B = -0.5
-rb_sd = riskBudgetSD(x_A, x_B, mu_A, mu_B, sig2_A, sig2_B, sig_AB)             
-rb_sd
-
-riskBudgetVaR <- function(x_A, x_B, mu_A, mu_B, sig2_A, sig2_B, sig_AB, 
-                          w0=100000, alpha=0.05) {
-  mu_p = x_A*mu_A + x_B*mu_B
-  sig_p = sqrt(x_A^2 * sig2_A + x_B^2 * sig2_B + 2*x_A*x_B*sig_AB)
-  VaR_p = (mu_p + sig_p*qnorm(0_05))*w0
-  mcr_sig_A = (x_A*sig2_A + x_B*sig_AB)/sig_p
-  mcr_sig_B = (x_B*sig2_B + x_A*sig_AB)/sig_p
-  mcr_A = (mu_A + mcr_sig_A*qnorm(alpha))*w0
-  mcr_B = (mu_B + mcr_sig_B*qnorm(alpha))*w0
-  cr_A = x_A*mcr_A
-  cr_B = x_B*mcr_B
-  pcr_A = cr_A/VaR_p
-  pcr_B = cr_B/VaR_p
-  ans = list(VaR_p=VaR_p,
-             x=c(x_A, x_B),
-             mcr = c(mcr_A, mcr_B),
-             cr = c(cr_A, cr_B),
-             pcr = c(pcr_A, pcr_B))
-  return(ans)
-}   
-x_A = 0.5
-x_B = 0.5
-rb_VaR = riskBudgetVaR(x_A, x_B, mu_A, mu_B, sig2_A, sig2_B, sig_AB)             
-rb_VaR
-x_A = 1.5
-x_B = -0.5
-rb_VaR = riskBudgetVaR(x_A, x_B, mu_A, mu_B, sig2_A, sig2_B, sig_AB)             
-rb_VaR
 ```
