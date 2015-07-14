@@ -9,8 +9,13 @@ output:
     transition: faster
     widescreen: yes
   beamer_presentation: default
-  
- ---
+   ---
+   
+```{r Set_ChunkOptions, echo=FALSE}
+#Select Chunk and package options @ http://yihui.name/knitr/options
+knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='center', warning = FALSE,cache=FALSE)
+
+```
 
 ## Background and Objective
 
