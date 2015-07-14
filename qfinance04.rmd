@@ -1,6 +1,4 @@
-
 ---
-
 title: "Finacial risk volatility modeling (ARCH, GARCH, & EGRCH) with R"
 author: "Vijaya Gagrani"
 date: "May 2015"
@@ -11,8 +9,7 @@ output:
     transition: faster
     widescreen: yes
   beamer_presentation: default
-  
----
+ ---
 
 ## Background and Objective
 
