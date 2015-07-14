@@ -9,6 +9,7 @@ output:
     transition: faster
     widescreen: yes
   beamer_presentation: default
+  
  ---
 
 ## Background and Objective
