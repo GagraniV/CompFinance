@@ -5,18 +5,16 @@ date: "May 2015"
 output:
   slidy_presentation: default
   ioslides_presentation:
-    keep_md: yes
-    transition: faster
-    widescreen: yes
+  keep_md: yes
+  transition: faster
+  widescreen: yes
   beamer_presentation: default
-   ---
+---
    
 ```{r Set_ChunkOptions, echo=FALSE}
 #Select Chunk and package options @ http://yihui.name/knitr/options
 knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='center', warning = FALSE,cache=FALSE)
-
 ```
-
 ## Background and Objective
 
 Finacial risk univariate volatility models included in this analyis are ARCH, GARCH, and EGRCH. These models are based on a least squares models assumptions that the expected value of all squared error terms or variance is same at any given point (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points, and thats what the center of the Autoregressive Conditional Heteroskedasticity models (ARCH).
