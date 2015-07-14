@@ -1,5 +1,6 @@
 
 ---
+
 title: "Finacial risk volatility modeling (ARCH, GARCH, & EGRCH) with R"
 author: "Vijaya Gagrani"
 date: "May 2015"
