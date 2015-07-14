@@ -10,6 +10,7 @@ output:
     transition: faster
     widescreen: yes
   beamer_presentation: default
+  
 ---
 
 ## Background and Objective
@@ -24,8 +25,8 @@ http://faculty.washington.edu/ezivot/econ589/econ589univariateGarch.r
 http://www.r-bloggers.com/a-practical-introduction-to-garch-modeling/
 https://onlinecourses.science.psu.edu/stat510/node/61
 
-
 Financial institutions measure the risk using a Value-at-Risk (VaR), usually calculated at the 99% confidence level. Generally, for a stock prices the low volatility periods follows by the periods of high volatility and vice versa (cluster volatility). This phenomenon is visually detectable in simple line plots. In addtion, we can test it applying the two commonly used tests(The Ljung-Box test for autocorrelation in squared returns and the Lagrange Multiplier (LM test)). In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
+
 ```{r}
 Box.test(coredata(intc^2), type = "Ljung-Box", lag = 12)
 #Reject the null hypothesis of no autocorrelations in the squared returns at the 1% significance level
