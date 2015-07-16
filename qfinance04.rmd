@@ -58,3 +58,34 @@ legend("topright", inset=.05, c("Intel return","VaR"), col = c("black","red"), l
 intc_garch11_fcst <- ugarchforecast(intc_garch11_fit, n.ahead = 12)
 
 ```
+## Vector Autoregressive Models (VAR) with R
+The Vector autoregressive models (VAR) are the multivariate extensions of the univariate autoregressive (AR) models. The R package, "vars" provide an excellent framework for this analysis. As per the VAR model each variable is evolved through a linear function of all other lagged variables. All varibles depends on the past values of its own and other varibles in consideration. 
+Impulse-response analysis is usually one of the main goals of building a VAR model.Essentially, an impulse-response function shows how a variable reacts (response) to a shock (impulse) hitting any other variable in the system. Impulse responses can be derived mathematically from the Vector Moving Average representation (VMA) of the VAR process.
+1. Equity Return (wfc)
+2. Stock Index (S&P500)
+3. US Treasury bond interest rates
+The primary purpose is to make a forecast for the S&P index by using the additional variables and to identify impulse responses. The above three varible holds a long term relationship. Important R packages for this analysis are vars and quantmod. 
+
+```{}
+# data download, Interest rates are downloaded from the FRED (Federal Reserve Economic Data) data source. rest two are from yahoo finance.
+
+getSymbols('MSFT', from='2004-01-02', to='2014-03-31')
+getSymbols('SNP', from='2004-01-02', to='2014-03-31')
+getSymbols('DTB3', src='FRED')
+#Reduced VAR model
+var1 <- VAR(dataDaily, lag.max=4, ic="AIC")
+VARselect(dataDaily,lag.max=4)
+summary(var1)
+
+var.pred <- predict(var1, n.ahead=10, ci=0.95)
+var.irf <- irf(var1)
+plot(var.irf)
+#structural VAR
+
+
+
+
+
+```
+
+Berlinger, E., Illés, F., Badics, M., Banai, Á., Daróczi, G., Dömötör, B., ... & Vidovics-Dancs, Á. (2015). Mastering R for Quantitative Finance. Packt Publishing Ltd.
