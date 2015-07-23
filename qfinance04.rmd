@@ -59,19 +59,28 @@ intc_garch11_fcst <- ugarchforecast(intc_garch11_fit, n.ahead = 12)
 
 ```
 ## Vector Autoregressive Models (VAR) with R
-The Vector autoregressive models (VAR) are the multivariate extensions of the univariate autoregressive (AR) models. The R package, "vars" provide an excellent framework for this analysis. As per the VAR model each variable is evolved through a linear function of all other lagged variables. All varibles depends on the past values of its own and other varibles in consideration. 
-Impulse-response analysis is usually one of the main goals of building a VAR model.Essentially, an impulse-response function shows how a variable reacts (response) to a shock (impulse) hitting any other variable in the system. Impulse responses can be derived mathematically from the Vector Moving Average representation (VMA) of the VAR process.
+
+The Vector autoregressive models (VAR) are the multivariate extensions of the univariate autoregressive (AR) models, captures the linear dependencies among multiple time series. As per the VAR model each variable is evolved through a linear function of all other lagged variables. All varibles depends on the past values of its own as well as the other varibles in consideration. For a VAR model, all variables have to be stationary or show the same order of intgration. In case if the varibles are nonstationary, or cointegrated, the error correction term is included in the VAR and the model is kknown as VECM or Vector Error Correction Model. 
+A VAR model is primarly used to assess the Impulse-response from a stress. Essentially, an impulse-response function shows how a variable reacts (response) to a shock (impulse) influsing any other variable in the system. For example the impulse respose of 1SD shock in S&P prices for a univariate analysis. For multivatiate analysis, covsariance matrix is used.
+Variance decompostion
+
+In this analysis following three datasets are used:
+
 1. Equity Return (wfc)
 2. Stock Index (S&P500)
 3. US Treasury bond interest rates
-The primary purpose is to make a forecast for the S&P index by using the additional variables and to identify impulse responses. The above three varible holds a long term relationship. Important R packages for this analysis are vars and quantmod. 
+
+The primary purpose is to make a forecast for the S&P index by using the additional variables and to identify impulse responses. The above three varible holds a long term relationship. 
 
 ```{}
 # data download, Interest rates are downloaded from the FRED (Federal Reserve Economic Data) data source. rest two are from yahoo finance.
+#The R package, "vars" provide an excellent framework for this analysis.
+# Important R packages for this analysis are vars and quantmod.
 
 getSymbols('MSFT', from='2004-01-02', to='2014-03-31')
 getSymbols('SNP', from='2004-01-02', to='2014-03-31')
 getSymbols('DTB3', src='FRED')
+plot...
 #Reduced VAR model
 var1 <- VAR(dataDaily, lag.max=4, ic="AIC")
 VARselect(dataDaily,lag.max=4)
@@ -82,9 +91,7 @@ var.irf <- irf(var1)
 plot(var.irf)
 #structural VAR
 
-
-
-
+#SVAR
 
 ```
 
