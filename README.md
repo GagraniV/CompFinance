@@ -4,7 +4,7 @@ The overall goal of the CompFinace repository is to the use power and flexibilit
 
 2. Qfinance02.rmd script reads monthly adjusted closing prices of four following assets "wfc","sp500", "aapl",and "vbltx" from February 1992 to April 2015. The goal is to compute continuous compounding monthly returns, simulate constant expected return or CER model, simulate random walk model or RWM, estimate model parameters (i.e., mean, variances, confidence intervals, covariance, and correlation), apply Monte Carlo simulation to compute sampling distribution of statistics, compute rolling mean and SD values, estimate Quantile and VaR from CER model, Bootstrapping, hypothesis testing.
 
-3. The goal of the Qfinance03.rmd is to carry out time series analysis for financial data. The analysis involves computing autocorrelation, partial autocorrelations, fitting ARIMA model, forecast from an ARIMA model.
+3. The Qfinance03.rmd covers the finacial time series analysis. The analysis involves computing autocorrelation, partial autocorrelations, fitting ARIMA model, forecast from an ARIMA model.
 
 
 Resources: http://faculty.washington.edu/ezivot/econ424/424notes.htm
