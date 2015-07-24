@@ -61,6 +61,9 @@ intc_garch11_fcst <- ugarchforecast(intc_garch11_fit, n.ahead = 12)
 ## Vector Autoregressive Models (VAR) with R
 
 The Vector autoregressive models (VAR) are the multivariate extensions of the univariate autoregressive (AR) models, captures the linear dependencies among multiple time series. As per the VAR model each variable is evolved through a linear function of all other lagged variables. All varibles depends on the past values of its own as well as the other varibles in consideration. For a VAR model, all variables have to be stationary or show the same order of intgration. In case if the varibles are nonstationary, or cointegrated, the error correction term is included in the VAR and the model is kknown as VECM or Vector Error Correction Model. 
+
+A nonstationary time series have means, variances, and covariances that change over time. It occurs as trends, cycles, random walks, or combinations of the three. Regression models without accounting the nonstationarity results into spuriuos regressions. The cointegration technique is useful to investigate cointegrated or nonstationary variables important to avoid the spurious regression. The Engle-Granger tests and the Johansen-Juselius tests allow to test the cointegration.
+Augmented Dickey–Fuller (ADF) t-statistic test: small p-values suggest (library(urca))
 A VAR model is primarly used to assess the Impulse-response from a stress. Essentially, an impulse-response function shows how a variable reacts (response) to a shock (impulse) influsing any other variable in the system. For example the impulse respose of 1SD shock in S&P prices for a univariate analysis. For multivatiate analysis, covsariance matrix is used.
 Variance decompostion
 
@@ -96,3 +99,7 @@ plot(var.irf)
 ```
 
 Berlinger, E., Illés, F., Badics, M., Banai, Á., Daróczi, G., Dömötör, B., ... & Vidovics-Dancs, Á. (2015). Mastering R for Quantitative Finance. Packt Publishing Ltd.
+
+Fabozzi, F. J., Focardi, S. M., Rachev, S. T., & Arshanapalli, B. G. (2014). The Basics of Financial Econometrics: Tools, Concepts, and Asset Management Applications. John Wiley & Sons.
+
+http://www.investopedia.com
