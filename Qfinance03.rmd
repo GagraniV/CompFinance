@@ -64,7 +64,7 @@ btest1<-Box.test((returns_lcc[,"wfc"]), type="Ljung-Box")
 
 ##Partial Autocorrelation (PACF)
 
-Partial Autocorrelation is a tool to understand interrelationships in a time series. It is the correlation between all data points that are exactly n steps apart, after accounting for their correlation with the data between those n steps. It helps to identify the number of autoregression(AR) coefficients in an ARIMA model. For wcf, no significant partial autocorrelation found.
+Partial Autocorrelation is a tool to understand interrelationships in a time series. It is the condtional correlation between all data points that are exactly n steps apart, after accounting for their correlation with the data between those n steps. It helps to identify the number of autoregression(AR) coefficients in an ARIMA model. For wcf,sp500,vbltx, and aapl no significant partial autocorrelation found for lag1.
 
 
 ```{r}
@@ -82,7 +82,7 @@ par(mfrow=c(1,1))
 
 ##Finding lagged correlation between two time series
 
-The cross correlation function helps to discover lagged correlations between two time series. Correlation at lag 0 is the simple correlation between the variables.
+The cross correlation function helps to discover lagged correlations between two time series. Correlation at lag 0 is the simple correlation between the variables. Theser is no lagged correlation found in our assets.
 
 ```{r,echo= FALSE}
 par <- par("mar")
@@ -101,7 +101,8 @@ ccf((returns_lcc[,"aapl"]),(returns_lcc[,"wfc"]))
 
 ##Fitting ARIMA Model
 
-Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. Diagnostic checking (e.g. Model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff.; d= degree of differencing (AR); q = number of moving average coeff (MA).
+Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. Diagnostic checking (e.g. Model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff (AR); d= degree of differencing ; q = number of moving average coeff (MA).
+https://onlinecourses.science.psu.edu/stat510/?q=book/export/html/49
 
 ```{r}
 w<-(auto.arima(returns[,"wfc"]))
