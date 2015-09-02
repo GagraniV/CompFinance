@@ -67,6 +67,7 @@ In this analysis following three datasets are used:
 3. US Treasury bond interest rates
 The primary purpose is to make a forecast for the S&P index by using two additional variables and to identify impulse responses. The above three variable holds a long term relationship.
 
+The main advantage with SVAR analysis is that the necessary restrictions on the estimated reduced VAR model, required for identification of the underlying structural model, can be provided by economic theory.These restrictions can be either contemporaneous or long-run in nature depending on whether the underlying disturbances are considered to be temporary or permanent in nature. Once the identification is achieved it is possible to recover the structural shocks. These shocks can then be used to generate impulse response and variance decomposition functions to assess the dynamic impacts of different economic variables. In addition these functions can be used to test whether such shocks affect the economic variables as economic theory would predict so providing a check on the theory.
 
 ```{}
 # data download, Interest rates are downloaded from the FRED (Federal Reserve Economic Data) data source. rest two are from yahoo finance.
