@@ -27,33 +27,78 @@ However,it is also well established that the volatility is more influenced by ne
 
 Financial institutions measure the risk using a Value-at-Risk (VaR), usually calculated at the 99% confidence level. Generally, for a stock prices the low volatility periods follows by the periods of high volatility and vice versa (cluster volatility). This phenomenon is visually detectable in simple line plots. In addtion, we can test it by applying the two commonly used tests(The Ljung-Box test for autocorrelation in squared returns and the Lagrange Multiplier (LM test)). In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
 
-```{r}
-Box.test(coredata(intc^2), type = "Ljung-Box", lag = 12)
-#Reject the null hypothesis of no autocorrelations in the squared returns at the 1% significance level
-#LM test
-install.packages("FinTS")
-library("FinTS")
-ArchTest(coredata(intc))
 
+```{r Initial_Settings_n_Basic_Stat}
+#set working directory
+#setwd("C:/Users/gagranis/Documents/Finance/Coursera/qfinance")
+options(digits=4, width=70)
+library("PerformanceAnalytics")
+library("xts")
+library("zoo")
+library("tseries")
+library("plyr")
+library("mvtnorm")
+library("splusTimeSeries")
+library("boot")
+library("FinTS") #  for LM test
 library("rugarch")
-#specify the model
-intc_garch11_spec <- ugarchspec(variance.model = list(+   garchOrder = c(1, 1)),+  mean.model = list(armaOrder = c(0, 0)))
-#model estimation
-intc_garch11_fit <- ugarchfit(spec = intc_garch11_spec,+  data = intc)
-#backtesting: to check the model perfromance 
-intc_garch11_roll <- ugarchroll(intc_garch11_spec, intc,+   n.start = 120, refit.every = 1, refit.window = "moving",+   solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,+   keep.coef = TRUE)
-#examining backtest report
-report(intc_garch11_roll, type = "VaR", VaR.alpha = 0.01,+   conf.level = 0.99)
-#Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. In our case, despite the actual five exceedances versus an expectation of three, we can't reject the null hypothesis that the exceedances are correct and independent.
-intc_VaR <- zoo(intc_garch11_roll@forecast$VaR[, 1])
-index(intc_VaR) <- as.yearmon(rownames(intc_garch11_roll@forecast$VaR))
-intc_actual <- zoo(intc_garch11_roll@forecast$VaR[, 2])
-index(intc_actual) <- as.yearmon(rownames(intc_garch11_roll@forecast$VaR))
-plot(intc_actual, type = "b", main = "99% 1 Month VaR Backtesting",+   xlab = "Date", ylab = "Return/VaR in percent")
-lines(intc_VaR, col = "red")
-legend("topright", inset=.05, c("Intel return","VaR"), col = c("black","red"), lty = c(1,1))
+```
+
+```{r}
+# wfc_ret is the continous compounding returns from montly prices, returns are stationary.coredata function eliminates any index and provides the data field only.
+
+wfc_ret1 <- coredata(wfc_ret)
+ #  the wfc_sim_pret is simple monthly(%) return.
+ 
+wfc_sim_pret[which.min(wfc_sim_pret)]
+# The largest one month loass for wfc was -36%.
+
+plot(wfc_sim_pret,main="MOnthly Simple Return of WFC", xlab = "Days",ylab="Return in %")
+ 
+Box.test(coredata(wfc_sim_pret^2), type = "Ljung-Box", lag = 12)
+#Reject the null hypothesis that there is no autocorrelations in the squared returns at the 1% significance level
+
+#LM test (FinTS package)
+ArchTest(coredata(wfc_sim_pret))
+#The above two tests confirm that ARCH effect (no autocorrelation) exists in the monthly simple return
+
+##For GARCH Model, we used the below function from the rugarch library. 
+
+
+#1.specify the model
+wfc_garch_11_spec<- ugarchspec(variance.model = list(garchOrder = c(1, 1)), mean.model = list(armaOrder = c(0, 0)))
+
+#2.model estimation
+wfc_garch_11_fit <- ugarchfit(spec = wfc_garch_11_spec,data = wfc_sim_pret)
+
+wfc_garch_11_fit
+# How to read GARCH Model Fit???
+
+#3.backtesting: to check the model perfromance 
+
+wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 1, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
+
+#4. examining backtest report
+report(wfc_garch_11_roll, type = "VaR", VaR.alpha = 0.01,conf.level = 0.99)
+
+#Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. In our case, despite the actual 2 exceedances versus an expectation of 1.3, we can't reject the null hypothesis that the exceedances are correct and independent.
+
+wfc_VaR <- zoo(wfc_garch_11_roll@forecast$VaR[, 1])
+
+#index(wfc_VaR) <- as.yearmon(rownames(intc_garch11_roll@forecast$VaR))
+
+wfc_actual <- zoo(wfc_garch_11_roll@forecast$VaR[, 2])
+
+#index(intc_actual) <- as.yearmon(rownames(intc_garch11_roll@forecast$VaR))
+
+plot(wfc_actual, type = "b", main = "99% 1 Month VaR Backtesting",xlab = "Date", ylab = "Return/VaR in percent")
+lines(wfc_VaR, col = "red")
+
+legend("topright", inset=.05, c("wfc return","VaR"), col = c("black","red"), lty = c(1,1))
+
 #forecasting
-intc_garch11_fcst <- ugarchforecast(intc_garch11_fit, n.ahead = 12)
+wfc_garch_11_fcst <- ugarchforecast(wfc_garch_11_fit, n.ahead = 12)
+qnorm(.99)*3.660
 
 ```
 ## Vector Autoregressive Models (VAR) with R
