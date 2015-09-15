@@ -21,12 +21,11 @@ Finacial risk univariate volatility models included in this analyis are ARCH, GA
 
 Volatility is important in quantifiying financial risk, portfolio selection, derivative pricing, and option pricing model. However, in financial time series, volatility occurs in clusters like periods of high volatility follows with high volatility and vice versa.  In addtion, more recent events would be more relevant then the distant past events. The ARCH models utilize the heteroskedasticity in time series data to measure volatility (standard deviation). These models are applied to forecast mean, SD, and variance of return based on the past information. In addtion, these models allow to use the best weights in forecasting variance instead of using equal weights for all past events.
 
-An ARCH model is similar to the AR(1) model on squared residuals. In an ARCH(1) model, next period’s variance only depends on last period’s squared residual. The ARCH model is extended as the Generalized ARCH or GARCH model by making it conditional to both squared residuals and squared observations in past. The typical GARCH model is described as GARCH(1,1) model. The first subscript in GARCH reefers to autoregressive lags or ARCH and second subscript refers to the moving average lags, respectively. These models are basically setup for one period forecast, however a long-horizon forecasting can be constructed. The ARCH/GARCH approaches are widely used in situations where volatility of return is a central issue.  
+An ARCH model is similar to the AR(1) model on squared residuals. In an ARCH(1) model, next period’s variance only depends on last period’s squared residual. The ARCH model is extended as the Generalized ARCH or GARCH model by making variance conditional to both squared residuals and squared observations in past. The typical GARCH model is described as GARCH(1,1) model. The first subscript in GARCH reefers to autoregressive lags or ARCH and second subscript refers to the moving average lags, respectively. These models are basically setup for one period forecast, however a long-horizon forecasting can be constructed. The ARCH/GARCH approaches are widely used in situations where volatility of return is a central issue.  
 
 However,it is also well established that the volatility is more influenced by negative returns then the postive(leverage effect). The nonlinear GARCH, exponetial GARCH, and threshold GARCH models accounts the leverage effect. It is important to understand that the standard GARCH assumnes that the model residuals are normally distrbuted, however returns on assests are often skewed or leptokurtosisic. 
 
-Financial institutions measure the risk using a Value-at-Risk (VaR), usually calculated at the 99% confidence level. Generally, for a stock prices the low volatility periods follows by the periods of high volatility and vice versa (cluster volatility). This phenomenon is visually detectable in simple line plots. In addtion, we can test it by applying the two commonly used tests(The Ljung-Box test for autocorrelation in squared returns and the Lagrange Multiplier (LM test)). In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
-
+The clustered volatilty phenomenon in finacial data is visually detectable in simple line plots. In addtion, we can identify it by applying two commonly used tests, first is the Ljung-Box test for autocorrelation in squared returns and second is the Lagrange Multiplier (LM test). In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
 
 ```{r Initial_Settings_n_Basic_Stat}
 #set working directory
@@ -44,28 +43,41 @@ library("FinTS") #  for LM test
 library("rugarch")
 ```
 
-```{r}
-# wfc_ret is the continous compounding returns from montly prices, returns are stationary.coredata function eliminates any index and provides the data field only.
+## Testing ARCH Effect or No autocorrelation
 
-wfc_ret1 <- coredata(wfc_ret)
- #  the wfc_sim_pret is simple monthly(%) return.
+For a single assest, we are using wfc monthly closing prices. First, the monthly return is calcualted using the monthly price data. Monthly returns are stationaly, whereas monthly price is nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in outmonthly return.
+
+```{r}
+
+# the wfc_sim_pret is simple monthly(%) return.
  
 wfc_sim_pret[which.min(wfc_sim_pret)]
 # The largest one month loass for wfc was -36%.
 
-plot(wfc_sim_pret,main="MOnthly Simple Return of WFC", xlab = "Days",ylab="Return in %")
- 
+plot(wfc_sim_pret,main="MOnthly Simple Return on WFC", xlab = "Days", ylab="Return in %")
+
+#Coredata function eliminates any index and provides the data field only.. 
 Box.test(coredata(wfc_sim_pret^2), type = "Ljung-Box", lag = 12)
 #Reject the null hypothesis that there is no autocorrelations in the squared returns at the 1% significance level
 
 #LM test (FinTS package)
+
 ArchTest(coredata(wfc_sim_pret))
 #The above two tests confirm that ARCH effect (no autocorrelation) exists in the monthly simple return
 
-##For GARCH Model, we used the below function from the rugarch library. 
+```
+
+## GARCH Model
+http://faculty.washington.edu/ezivot/econ589/ch18-garch.pdf
+http://faculty.washington.edu/ezivot/econ584/notes/timeSeriesConcepts.pdf
+http://www.inside-r.org/packages/cran/rugarch/docs/ugarchspec (garchOrder The ARCH (q) and GARCH (p) orders.)
+Lander, J. P. (2014). R for everyone: Advanced analytics and graphics. Pearson Education.(Chapter 21. Time Series and Autocorrelation).
+http://unstarched.net/r-examples/rugarch/a-short-introduction-to-the-rugarch-package/
 
 
-#1.specify the model
+```{r}
+#1.specify the model using the Univariate GARCH Specification or ugarchspec function from the  rugarch library.
+# mean to be modeled as an ARMA(1, 1) and for the white noise (0,0).
 wfc_garch_11_spec<- ugarchspec(variance.model = list(garchOrder = c(1, 1)), mean.model = list(armaOrder = c(0, 0)))
 
 #2.model estimation
@@ -101,6 +113,7 @@ wfc_garch_11_fcst <- ugarchforecast(wfc_garch_11_fit, n.ahead = 12)
 qnorm(.99)*3.660
 
 ```
+
 ## Vector Autoregressive Models (VAR) with R
 
 The Vector autoregressive models (VAR) are the multivariate extensions of the univariate autoregressive (AR) models, captures the linear dependencies among multiple time series. As per the VAR model each variable is evolved through a linear function of all other lagged variables. All variables depends on the past values of its own as well as the other variables in consideration. For a VAR model, all variables have to be stationary, else show the same order of integration. In case if the variables are nonstationary, or cointegrated, the error correction term is included in the VAR and the model is known as Vector Error Correction Model (VECM). 
