@@ -12,7 +12,7 @@ output:
 ---
    
 ```{r Set_ChunkOptions, echo=FALSE}
-#Select Chunk and package options @ http://yihui.name/knitr/options
+#Select Chunk and package options 
 knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='center', warning = FALSE,cache=FALSE)
 ```
 ## Background and Objective
@@ -45,7 +45,7 @@ library("rugarch")
 
 ## Testing ARCH Effect or No autocorrelation
 
-For a single assest, we are using wfc daily closing prices. First, the daily return is calcualted using the daily price data. Daily returns are stationary, whereas daily prices are nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in outmonthly return or the data are of heteroscedastic. The LM test also helps to determine the order of the ARCH model appropriate for the data. The LM test also indicates to use GARCH odel instead of the ARCH model,as the current variance depends on more than one past lag variances. In GARCH, only maximum likelyhood method is supported.
+For a single assest, we are using wfc daily closing prices. First, the daily return is calcualted using the daily price data. Daily returns are stationary, whereas daily prices are nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in daily return or the data are of heteroscedastic. The LM test also helps to determine the order of the ARCH model appropriate for the data. for wfc assest, the LM test indicated to use the GARCH model instead of the ARCH model, because the current variance depends on more than one past lag variances. 
 
 ```{r}
 
@@ -89,7 +89,7 @@ wfc_garch_11_fit
 
 #3.backtesting: to check the model perfromance 
 
-wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 1, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
+wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 1, refit.every = 10, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
 
 #4. examining backtest report
 report(wfc_garch_11_roll, type = "VaR", VaR.alpha = 0.01,conf.level = 0.99)
