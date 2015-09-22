@@ -47,14 +47,35 @@ library("rugarch")
 
 For a single assest, we are using wfc daily closing prices. First, the daily return is calcualted using the daily price data. Daily returns are stationary, whereas daily prices are nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in daily return or the data are of heteroscedastic. The LM test also helps to determine the order of the ARCH model appropriate for the data. for wfc assest, the LM test indicated to use the GARCH model instead of the ARCH model, because the current variance depends on more than one past lag variances. 
 
-```{r}
 
-# the wfc_sim_pret is simple monthly(%) return.
- 
-wfc_sim_pret[which.min(wfc_sim_pret)]
+```{r test}
+
+# the wfc_sim_pret is simple daily(%) return.
+# read dowloaded data
+SP500_prices <- read.csv("SP500_prices_d")
+AAPL_prices <- read.csv("AAPL_prices_d")
+VBLTX_prices <- read.csv("VBLTX_prices_d")
+WFC_prices <- read.csv("WFC_prices_d")
+# Rename column name
+colnames(SP500_prices)[colnames(SP500_prices)=="AdjClose"] <- "sp500"
+colnames(AAPL_prices)[colnames(AAPL_prices)=="AdjClose"] <- "aapl"
+colnames(VBLTX_prices)[colnames(VBLTX_prices)=="AdjClose"] <- "vbltx"
+colnames(WFC_prices)[colnames(WFC_prices)=="AdjClose"] <- "wfc"
+# create merged price data
+prices <- join_all(list(VBLTX_prices, SP500_prices, AAPL_prices, WFC_prices), by = 'Index')
+
+#coredata is a generic functions for extracting the core data contained in a (more complex) object and replacing it.
+prices_mat <-coredata(prices)
+simple_pret<-diff(as.zoo(prices_mat[2:5]))/lag(as.zoo(prices_mat[2:5]),k=-1)*100
+
+summary(simple_pret)
+simple_pret[which.min(simple_pret$wfc)]
+
+wfc_sim_pret <- simple_pret[,"wfc"]
+# The largest one month loass for wfc was -36%.
 # The largest one month loass for wfc was -36%.
 
-plot(wfc_sim_pret,main="MOnthly Simple Return on WFC", xlab = "Days", ylab="Return in %")
+plot(wfc_sim_pret,main="Daily Simple Return on WFC", xlab = "Days", ylab="Return in %")
 
 #Coredata function eliminates any index and provides the data field only.. 
 Box.test(coredata(wfc_sim_pret^2), type = "Ljung-Box", lag = 12)
@@ -73,29 +94,42 @@ http://faculty.washington.edu/ezivot/econ584/notes/timeSeriesConcepts.pdf
 http://www.inside-r.org/packages/cran/rugarch/docs/ugarchspec (garchOrder The ARCH (q) and GARCH (p) orders.)
 Lander, J. P. (2014). R for everyone: Advanced analytics and graphics. Pearson Education.(Chapter 21. Time Series and Autocorrelation).
 http://unstarched.net/r-examples/rugarch/a-short-introduction-to-the-rugarch-package/
-http://support.sas.com/documentation/cdl/en/etsug/63348/HTML/default/viewer.htm#etsug_autoreg_sect008.htm
 
+## 1.Model Specification
 
-```{r}
+```{r model}
 #1.specify the model using the Univariate GARCH Specification or ugarchspec function from the  rugarch library.
 # mean to be modeled as an ARMA(1, 1) and for the white noise (0,0).
 wfc_garch_11_spec<- ugarchspec(variance.model = list(garchOrder = c(1, 1)), mean.model = list(armaOrder = c(0, 0)))
 
-#2.model estimation
+wfc_garch_11_spec
+```
+
+## 2.model Estimation
+
+```{r model Est}
 wfc_garch_11_fit <- ugarchfit(spec = wfc_garch_11_spec,data = wfc_sim_pret)
 
 wfc_garch_11_fit
 # How to read GARCH Model Fit???
+```
 
-#3.backtesting: to check the model perfromance 
 
-wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 1, refit.every = 10, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
+##3.backtesting: to check the model perfromance 
+
+```{r model Backtest}
+wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 1, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
 
 #4. examining backtest report
 report(wfc_garch_11_roll, type = "VaR", VaR.alpha = 0.01,conf.level = 0.99)
 
 #Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. In our case, despite the actual 2 exceedances versus an expectation of 1.3, we can't reject the null hypothesis that the exceedances are correct and independent.
 
+```
+
+##4. Model Backtest Plot
+
+```{r model Backtest plot}
 wfc_VaR <- zoo(wfc_garch_11_roll@forecast$VaR[, 1])
 
 #index(wfc_VaR) <- as.yearmon(rownames(intc_garch11_roll@forecast$VaR))
@@ -109,11 +143,16 @@ lines(wfc_VaR, col = "red")
 
 legend("topright", inset=.05, c("wfc return","VaR"), col = c("black","red"), lty = c(1,1))
 
-#forecasting
+```
+
+## 5. forecasting
+
+```{r model forecast}
 wfc_garch_11_fcst <- ugarchforecast(wfc_garch_11_fit, n.ahead = 12)
 qnorm(.99)*3.660
 
 ```
+
 
 
 Berlinger, E., Illés, F., Badics, M., Banai, Á., Daróczi, G., Dömötör, B., ... & Vidovics-Dancs, Á. (2015). Mastering R for Quantitative Finance. Packt Publishing Ltd.
