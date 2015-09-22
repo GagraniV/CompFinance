@@ -1,6 +1,6 @@
 ---
 title: "Finacial Risk Volatility Modeling (ARCH, GARCH, & EGRCH) with R"
-author: "Vijaya Gagrani"
+author: "Vijaya Gagrani" (rexplore0@gmail.com)
 date: "September 2015"
 output:
   slidy_presentation: default
@@ -27,6 +27,7 @@ However, it is also well established that the volatility is more influenced by n
 
 The clustered volatilty phenomenon in finacial data is visually detectable in simple line plots. In addtion, we can identify it by applying two commonly used tests, first is the Ljung-Box test for autocorrelation in squared returns and second is the Lagrange Multiplier (LM test). In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
 
+
 ```{r Initial_Settings_n_Basic_Stat}
 #set working directory
 #setwd("C:/Users/gagranis/Documents/Finance/Coursera/qfinance")
@@ -41,7 +42,9 @@ library("splusTimeSeries")
 library("boot")
 library("FinTS") #  for LM test
 library("rugarch")
+
 ```
+
 
 ## Testing ARCH Effect or No autocorrelation
 
@@ -68,8 +71,8 @@ prices <- join_all(list(VBLTX_prices, SP500_prices, AAPL_prices, WFC_prices), by
 prices_mat <-coredata(prices)
 simple_pret<-diff(as.zoo(prices_mat[2:5]))/lag(as.zoo(prices_mat[2:5]),k=-1)*100
 
-summary(simple_pret)
-simple_pret[which.min(simple_pret$wfc)]
+sum<-summary(simple_pret)
+minwfc<-simple_pret[which.min(simple_pret$wfc)]
 
 wfc_sim_pret <- simple_pret[,"wfc"]
 # The largest one month loass for wfc was -36%.
@@ -77,45 +80,43 @@ wfc_sim_pret <- simple_pret[,"wfc"]
 
 plot(wfc_sim_pret,main="Daily Simple Return on WFC", xlab = "Days", ylab="Return in %")
 
-#Coredata function eliminates any index and provides the data field only.. 
+#Coredata function eliminates any index and provides the data field only.
+
 Box.test(coredata(wfc_sim_pret^2), type = "Ljung-Box", lag = 12)
+
 #Reject the null hypothesis that there is no autocorrelations in the squared returns at the 1% significance level
 
 #LM test (FinTS package)
+AT<-ArchTest(coredata(wfc_sim_pret))
+coefficients(AT)
 
-ArchTest(coredata(wfc_sim_pret))
-#The above two tests confirm that ARCH effect (no autocorrelation) exists in the monthly simple return
+#The above two tests confirm that ARCH effect (no autocorrelation) exists in the monthly simple return. Therefore we should employ the ARCH or GARCH volatility model.
 
 ```
 
-## GARCH Model
-http://faculty.washington.edu/ezivot/econ589/ch18-garch.pdf
-http://faculty.washington.edu/ezivot/econ584/notes/timeSeriesConcepts.pdf
-http://www.inside-r.org/packages/cran/rugarch/docs/ugarchspec (garchOrder The ARCH (q) and GARCH (p) orders.)
-Lander, J. P. (2014). R for everyone: Advanced analytics and graphics. Pearson Education.(Chapter 21. Time Series and Autocorrelation).
-http://unstarched.net/r-examples/rugarch/a-short-introduction-to-the-rugarch-package/
 
-## 1.Model Specification
+## 1. GARCH Model Specification
+Specify the model using the Univariate GARCH Specification or ugarchspec function from the  rugarch library. Mean to be modeled as an ARMA(1, 1) or for the white noise (0,0).
 
 ```{r model}
-#1.specify the model using the Univariate GARCH Specification or ugarchspec function from the  rugarch library.
-# mean to be modeled as an ARMA(1, 1) and for the white noise (0,0).
 wfc_garch_11_spec<- ugarchspec(variance.model = list(garchOrder = c(1, 1)), mean.model = list(armaOrder = c(0, 0)))
-
 wfc_garch_11_spec
 ```
 
-## 2.model Estimation
+## 2. Model Estimation
+
 
 ```{r model Est}
 wfc_garch_11_fit <- ugarchfit(spec = wfc_garch_11_spec,data = wfc_sim_pret)
-
 wfc_garch_11_fit
-# How to read GARCH Model Fit???
+
 ```
 
 
-##3.backtesting: to check the model perfromance 
+## 3. Backtesting: to check the model perfromance 
+
+In this analysis, we compared the estimented VaR with the actual return over the period. The estimated VaR should not be more negative than the actual return (VaR excedence). We calculated tail probability of VaR at 99% confidence level. 
+in this analysis, the actual 86 exceedances versus an expectation of 52, led to accept the null hypothesis that the exceedances are correct and independent. 
 
 ```{r model Backtest}
 wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 1, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
@@ -127,7 +128,7 @@ report(wfc_garch_11_roll, type = "VaR", VaR.alpha = 0.01,conf.level = 0.99)
 
 ```
 
-##4. Model Backtest Plot
+## 4. Model Backtest Plot
 
 ```{r model Backtest plot}
 wfc_VaR <- zoo(wfc_garch_11_roll@forecast$VaR[, 1])
@@ -146,25 +147,32 @@ legend("topright", inset=.05, c("wfc return","VaR"), col = c("black","red"), lty
 ```
 
 ## 5. forecasting
+#Calculate 99% VaR assuming the standard normal distribution. The next period VaR at 99% is ??? With 99% probabi;lity the daily return is above ???%
 
 ```{r model forecast}
 wfc_garch_11_fcst <- ugarchforecast(wfc_garch_11_fit, n.ahead = 12)
+wfc_garch_11_fcst
+
 qnorm(.99)*3.660
 
 ```
 
-
+## Useful Resources
+Lander, J. P. (2014). R for everyone: Advanced analytics and graphics. Pearson Education.(Chapter 21. Time Series and Autocorrelation).
 
 Berlinger, E., Illés, F., Badics, M., Banai, Á., Daróczi, G., Dömötör, B., ... & Vidovics-Dancs, Á. (2015). Mastering R for Quantitative Finance. Packt Publishing Ltd.
 
 Fabozzi, F. J., Focardi, S. M., Rachev, S. T., & Arshanapalli, B. G. (2014). The Basics of Financial Econometrics: Tools, Concepts, and Asset Management Applications. John Wiley & Sons.
 
-http://www.investopedia.com
+Tsay, R. S. (2014). An introduction to analysis of financial data with R. John Wiley & Sons.
+
 
 http://www.cmat.edu.uy/~mordecki/hk/engle.pdf
 http://faculty.washington.edu/ezivot/econ589/econ589univariateGarch.r
 http://faculty.washington.edu/ezivot/econ589/univariateGarch2012powerpoint.pdf
+http://faculty.washington.edu/ezivot/econ589/ch18-garch.pdf http://faculty.washington.edu/ezivot/econ584/notes/timeSeriesConcepts.pdf
 http://www.r-bloggers.com/a-practical-introduction-to-garch-modeling/
 https://onlinecourses.science.psu.edu/stat510/node/61
 http://rpubs.com/VijayaG
 http://rexplor.blogspot.com/
+http://unstarched.net/r-examples/rugarch/a-short-introduction-to-the-rugarch-package/
