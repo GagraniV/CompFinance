@@ -1,6 +1,6 @@
 ---
 title: "Finacial Risk Volatility Modeling (ARCH, GARCH, & EGRCH) with R"
-author: "Vijaya Gagrani" (rexplore0@gmail.com)
+author: "Vijaya Gagrani (rexplore0@gmail.com)"
 date: "September 2015"
 output:
   slidy_presentation: default
@@ -147,7 +147,7 @@ legend("topright", inset=.05, c("wfc return","VaR"), col = c("black","red"), lty
 ```
 
 ## 5. forecasting
-#Calculate 99% VaR assuming the standard normal distribution. The next period VaR at 99% is ??? With 99% probabi;lity the daily return is above ???%
+Calculate 99% VaR assuming the standard normal distribution. The next period VaR at 99% is ??? With 99% probabi;lity the daily return is above ???%
 
 ```{r model forecast}
 wfc_garch_11_fcst <- ugarchforecast(wfc_garch_11_fit, n.ahead = 12)
