@@ -1,5 +1,5 @@
 ---
-title: "Finacial Risk Volatility Modeling (ARCH, GARCH, & EGRCH) with R"
+title: "Various Autoregressive Conditional Heteroskedasticity Models (ARCH) with R"
 author: "Vijaya Gagrani (rexplore0@gmail.com)"
 date: "September 2015"
 output:
@@ -48,7 +48,7 @@ library("rugarch")
 
 ## Testing ARCH Effect or No autocorrelation
 
-For a single assest, we are using wfc daily closing prices. First, the daily return is calcualted using the daily price data. Daily returns are stationary, whereas daily prices are nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in daily return or the data are of heteroscedastic. The LM test also helps to determine the order of the ARCH model appropriate for the data. for wfc assest, the LM test indicated to use the GARCH model instead of the ARCH model, because the current variance depends on more than one past lag variances. 
+For a single assest, we are using wfc daily closing prices. First, the daily return is calcualted using the daily price data. Daily returns are a sequence of independent and identically distributed random varible or i.i.d. sequence, means that return are unpredictable. Also, it means that returns at any given time are random values independent from previous returns. Returns are stationary(drown from an iid sequence), whereas daily prices are nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in daily return or the data are of heteroscedastic. The LM test also helps to determine the order of the ARCH model appropriate for the data. for wfc assest, the LM test indicated to use the GARCH model instead of the ARCH model, because the current variance depends on more than one past lag variances. 
 
 
 ```{r test}
@@ -109,22 +109,19 @@ wfc_garch_11_spec
 ```{r model Est}
 wfc_garch_11_fit <- ugarchfit(spec = wfc_garch_11_spec,data = wfc_sim_pret)
 wfc_garch_11_fit
-
 ```
 
 
 ## 3. Backtesting: to check the model perfromance 
 
 In this analysis, we compared the estimented VaR with the actual return over the period. The estimated VaR should not be more negative than the actual return (VaR excedence). We calculated tail probability of VaR at 99% confidence level. 
-in this analysis, the actual 86 exceedances versus an expectation of 52, led to accept the null hypothesis that the exceedances are correct and independent. 
+in this analysis, the actual 86 exceedances versus an expectation of 52, led to accept the null hypothesis that the exceedances are correct and independent. Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. 
 
 ```{r model Backtest}
 wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 1, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
 
 #4. examining backtest report
 report(wfc_garch_11_roll, type = "VaR", VaR.alpha = 0.01,conf.level = 0.99)
-
-#Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. In our case, despite the actual 2 exceedances versus an expectation of 1.3, we can't reject the null hypothesis that the exceedances are correct and independent.
 
 ```
 
@@ -158,6 +155,7 @@ qnorm(.99)*3.660
 ```
 
 ## Useful Resources
+
 Lander, J. P. (2014). R for everyone: Advanced analytics and graphics. Pearson Education.(Chapter 21. Time Series and Autocorrelation).
 
 Berlinger, E., Illés, F., Badics, M., Banai, Á., Daróczi, G., Dömötör, B., ... & Vidovics-Dancs, Á. (2015). Mastering R for Quantitative Finance. Packt Publishing Ltd.
