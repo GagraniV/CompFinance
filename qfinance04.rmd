@@ -1,7 +1,7 @@
 ---
 title: "Finacial Risk Volatility Modeling (ARCH, GARCH, & EGRCH) with R"
 author: "Vijaya Gagrani"
-date: "May 2015"
+date: "September 2015"
 output:
   slidy_presentation: default
   ioslides_presentation:
@@ -166,3 +166,5 @@ http://faculty.washington.edu/ezivot/econ589/econ589univariateGarch.r
 http://faculty.washington.edu/ezivot/econ589/univariateGarch2012powerpoint.pdf
 http://www.r-bloggers.com/a-practical-introduction-to-garch-modeling/
 https://onlinecourses.science.psu.edu/stat510/node/61
+http://rpubs.com/VijayaG
+http://rexplor.blogspot.com/
