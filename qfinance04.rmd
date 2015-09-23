@@ -1,5 +1,5 @@
 ---
-title: "Various Autoregressive Conditional Heteroskedasticity Models (ARCH) with R"
+title: "Various Autoregressive Conditional Heteroskedasticity Models (ARCH) using R"
 author: "Vijaya Gagrani (rexplore0@gmail.com)"
 date: "September 2015"
 output:
@@ -107,8 +107,18 @@ wfc_garch_11_spec
 
 
 ```{r model Est}
-wfc_garch_11_fit <- ugarchfit(spec = wfc_garch_11_spec,data = wfc_sim_pret)
+wfc_garch_11_fit <- ugarchfit(spec = wfc_garch_11_spec, data = wfc_sim_pret)
 wfc_garch_11_fit
+
+plot(xts(fit@model$modeldata$data, fit@model$modeldata$index), auto.grid = FALSE, minor.ticks = FALSE,
+main = 'WFC Conditional Mean')
+lines(fitted(fit), col = 2)
+grid()
+
+plot(xts(abs(fit@model$modeldata$data), fit@model$modeldata$index), auto.grid = FALSE,
+    minor.ticks = FALSE, main = 'WFC Conditional Sigma', col = 'grey')
+lines(sigma(fit), col = 'steelblue')
+grid()
 ```
 
 
@@ -118,7 +128,9 @@ In this analysis, we compared the estimented VaR with the actual return over the
 in this analysis, the actual 86 exceedances versus an expectation of 52, led to accept the null hypothesis that the exceedances are correct and independent. Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. 
 
 ```{r model Backtest}
-wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 1, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
+wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 10, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
+
+show (wfc_garch_11_roll)
 
 #4. examining backtest report
 report(wfc_garch_11_roll, type = "VaR", VaR.alpha = 0.01,conf.level = 0.99)
@@ -149,10 +161,23 @@ Calculate 99% VaR assuming the standard normal distribution. The next period VaR
 ```{r model forecast}
 wfc_garch_11_fcst <- ugarchforecast(wfc_garch_11_fit, n.ahead = 12)
 wfc_garch_11_fcst
+wfc_garch_11_fcst1 = ugarchforecast(wfc_garch_11_fit, n.ahead = 1, n.roll = 499, data = wfc_sim_pret[1:1500, , drop = FALSE], out.sample = 500)
 
 qnorm(.99)*3.660
 
 ```
+# Simulating GARCH Model
+
+```{r Simulation}
+
+sim = ugarchsim(fit, n.sim = 1000, m.sim = 25, rseed = 1:25)
+simSig = as.data.frame(sim, which = 'sigma')
+simSer = as.data.frame(sim, which = 'series')
+show(sim)
+plot(sim, which = 'all', m.sim = 24)
+
+
+``
 
 ## Useful Resources
 
