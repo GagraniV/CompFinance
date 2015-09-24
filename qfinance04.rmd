@@ -15,17 +15,18 @@ output:
 #Select Chunk and package options 
 knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='center', warning = FALSE,cache=FALSE)
 ```
+
 ## Background and Objective
 
-Finacial risk univariate volatility models included in this analyis are ARCH, GARCH, and EGRCH. These models are based on one of the key assumption of the oridinary least squares models that the expected value of all squared error terms or variance is same throughout the sample (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points, and thats what the center of the Autoregressive Conditional Heteroskedasticity models (ARCH).
+Financial risk univariate volatility models included in this analysis are ARCH, GARCH, and EGRCH. These models are based on one of the key assumption of the ordinary least squares models that the expected value of all squared error terms or variance is same throughout the sample (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points, and thats what the center of the Autoregressive Conditional Heteroskedasticity models (ARCH).
 
-Volatility is important in quantifiying financial risk, portfolio selection, derivative pricing, and option pricing model. However, in financial time series, volatility occurs in clusters like periods of high volatility follows with high volatility and vice versa.  In addtion, more recent events would be more relevant then the distant past events. The ARCH models utilize the heteroskedasticity in time series data to measure volatility (standard deviation). These models are applied to forecast mean, SD, and variance of return based on the past information. In addtion, these models allow to use the best weights in forecasting variance instead of using equal weights for all past events.
+Volatility is important in quantifying financial risk, portfolio selection, derivative pricing, and option pricing model. However, in financial time series, volatility occurs in clusters like periods of high volatility follows with high volatility and vice versa.  In addition, more recent events would be more relevant then the distant past events. The ARCH models utilize the heteroskedasticity in time series data to measure volatility (standard deviation). These models are applied to forecast mean, SD, and variance of return based on the past information. In addition, these models allow to use the best weights in forecasting variance instead of using equal weights for all past events.
 
 An ARCH model is similar to the AR(1) model on squared residuals. In an ARCH(1) model, next period’s variance only depends on last period’s squared residual (short memory). The ARCH model is extended as the Generalized ARCH or GARCH model by making variance conditional to both last period's as well as all past period's squared residuals (long memory). The typical GARCH model is described as GARCH(1,1) model. The first subscript in GARCH reefers to autoregressive lags or ARCH and second subscript refers to the moving average lags, respectively. These models are basically setup for one period forecast, however a long-horizon forecasting can be constructed. The ARCH/GARCH approaches are widely used in situations where volatility of return is a central issue.  
 
-However, it is also well established that the volatility is more influenced by negative returns then the postive(leverage effect). The nonlinear GARCH, exponetial GARCH, and threshold GARCH models accounts the leverage effect. It also is important to note the standard GARCH assumtion that the model residuals are normally distrbuted, however returns on assests are often skewed or leptokurtosisic. 
+However, it is also well established that the volatility is more influenced by negative returns then the positive(leverage effect). The nonlinear GARCH, exponential GARCH, and threshold GARCH models accounts the leverage effect. It also is important to note the standard GARCH assumption that the model residuals are normally distributed, however returns on assets are often skewed or leptokurtosisic. 
 
-The clustered volatilty phenomenon in finacial data is visually detectable in simple line plots. In addtion, we can identify it by applying two commonly used tests, first is the Ljung-Box test for autocorrelation in squared returns and second is the Lagrange Multiplier (LM test). In rugarch library there are diffrent functions for model specification, parameter estimation, backtesting, and forecasting. 
+The clustered volatility phenomenon in financial data is visually detectable in simple line plots. In addition, we can identify it by applying two commonly used tests, first is the Ljung-Box test for autocorrelation in squared returns and second is the Lagrange Multiplier (LM test). In rugarch library there are different functions for model specification, parameter estimation, backtesting, and forecasting. 
 
 
 ```{r Initial_Settings_n_Basic_Stat}
@@ -48,12 +49,12 @@ library("rugarch")
 
 ## Testing ARCH Effect or No autocorrelation
 
-For a single assest, we are using wfc daily closing prices. First, the daily return is calcualted using the daily price data. Daily returns are a sequence of independent and identically distributed random varible or i.i.d. sequence, means that return are unpredictable. Also, it means that returns at any given time are random values independent from previous returns. Returns are stationary(drown from an iid sequence), whereas daily prices are nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in daily return or the data are of heteroscedastic. The LM test also helps to determine the order of the ARCH model appropriate for the data. for wfc assest, the LM test indicated to use the GARCH model instead of the ARCH model, because the current variance depends on more than one past lag variances. 
+For a single asset, we are using wfc daily closing prices. First, the daily return is calculated using the daily price data. Daily returns are a sequence of independent and identically distributed random variable or i.i.d. sequence, means that return are unpredictable. Also, it means that returns at any given time are random values independent from previous returns. Returns are stationary(drown from an iid sequence), whereas daily prices are nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in daily return or the data are of heteroscedastic. The LM test also helps to determine the order of the ARCH model appropriate for the data. for wfc assets, the LM test indicated to use the GARCH model instead of the ARCH model, because the current variance depends on more than one past lag variances. 
 
 
 ```{r test}
 
-# the wfc_sim_pret is simple daily(%) return.
+# the wfc_sim_pret is log daily(%) return.
 # read dowloaded data
 SP500_prices <- read.csv("SP500_prices_d")
 AAPL_prices <- read.csv("AAPL_prices_d")
@@ -68,17 +69,25 @@ colnames(WFC_prices)[colnames(WFC_prices)=="AdjClose"] <- "wfc"
 prices <- join_all(list(VBLTX_prices, SP500_prices, AAPL_prices, WFC_prices), by = 'Index')
 
 #coredata is a generic functions for extracting the core data contained in a (more complex) object and replacing it.
+
 prices_mat <-coredata(prices)
+
 simple_pret<-diff(as.zoo(prices_mat[2:5]))/lag(as.zoo(prices_mat[2:5]),k=-1)*100
 
-sum<-summary(simple_pret)
-minwfc<-simple_pret[which.min(simple_pret$wfc)]
 
-wfc_sim_pret <- simple_pret[,"wfc"]
+(table.Stats(simple_pret))
+
+log_pret<-diff(log(as.zoo(prices_mat[2:5])))/lag(log(as.zoo(prices_mat[2:5])),k=-1)*100
+
+sum<-summary(log_pret)
+
+minwfc<-log_pret[which.min(log_pret$wfc)]
+
+wfc_sim_pret <- log_pret[,"wfc"]
 # The largest one month loass for wfc was -36%.
 # The largest one month loass for wfc was -36%.
 
-plot(wfc_sim_pret,main="Daily Simple Return on WFC", xlab = "Days", ylab="Return in %")
+plot(wfc_sim_pret,main="Daily log Return on WFC", xlab = "Days", ylab="Return in %")
 
 #Coredata function eliminates any index and provides the data field only.
 
@@ -87,19 +96,21 @@ Box.test(coredata(wfc_sim_pret^2), type = "Ljung-Box", lag = 12)
 #Reject the null hypothesis that there is no autocorrelations in the squared returns at the 1% significance level
 
 #LM test (FinTS package)
-AT<-ArchTest(coredata(wfc_sim_pret))
-coefficients(AT)
 
-#The above two tests confirm that ARCH effect (no autocorrelation) exists in the monthly simple return. Therefore we should employ the ARCH or GARCH volatility model.
+AT<-ArchTest(coredata(wfc_sim_pret))
+
+#The above two tests confirm that ARCH effect (no autocorrelation) exists in the monthly log return. Therefore we should employ the ARCH or GARCH volatility model.
 
 ```
 
 
 ## 1. GARCH Model Specification
+
 Specify the model using the Univariate GARCH Specification or ugarchspec function from the  rugarch library. Mean to be modeled as an ARMA(1, 1) or for the white noise (0,0).
 
 ```{r model}
 wfc_garch_11_spec<- ugarchspec(variance.model = list(garchOrder = c(1, 1)), mean.model = list(armaOrder = c(0, 0)))
+
 wfc_garch_11_spec
 ```
 
@@ -109,28 +120,37 @@ wfc_garch_11_spec
 ```{r model Est}
 wfc_garch_11_fit <- ugarchfit(spec = wfc_garch_11_spec, data = wfc_sim_pret)
 wfc_garch_11_fit
+class(wfc_garch_11_fit)
+slotNames(wfc_garch_11_fit)
+names(wfc_garch_11_fit@fit)
+names(wfc_garch_11_fit@model)
+coef(wfc_garch_11_fit)
+halflife(wfc_garch_11_fit)
 
-plot(xts(fit@model$modeldata$data, fit@model$modeldata$index), auto.grid = FALSE, minor.ticks = FALSE,
-main = 'WFC Conditional Mean')
-lines(fitted(fit), col = 2)
-grid()
+#plot(xts(wfc_garch_11_fit@model$wfc_sim_pret$data, wfc_garch_11_fit@model$wfc_sim_pret$index), auto.grid = FALSE, minor.ticks = FALSE,main = 'WFC Conditional Mean')
+#lines(fitted(wfc_garch_11_fit), col = 2)
+#grid()
 
-plot(xts(abs(fit@model$modeldata$data), fit@model$modeldata$index), auto.grid = FALSE,
-    minor.ticks = FALSE, main = 'WFC Conditional Sigma', col = 'grey')
-lines(sigma(fit), col = 'steelblue')
-grid()
+#order.by requires an appropriate time-based object r
+
+#plot(xts(abs(fit@model$modeldata$data), fit@model$modeldata$index), auto.grid = FALSE,minor.ticks = FALSE, main = 'WFC Conditional Sigma', col = 'grey')
+#lines(sigma(fit), col = 'steelblue')
+
+#grid()
 ```
 
 
 ## 3. Backtesting: to check the model perfromance 
 
-In this analysis, we compared the estimented VaR with the actual return over the period. The estimated VaR should not be more negative than the actual return (VaR excedence). We calculated tail probability of VaR at 99% confidence level. 
-in this analysis, the actual 86 exceedances versus an expectation of 52, led to accept the null hypothesis that the exceedances are correct and independent. Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. 
+In this analysis, we compared the estimated VaR with the actual return over the period. The estimated VaR should not be more negative than the actual return (VaR excedence). We calculated tail probability of VaR at 99% confidence level. 
+in this analysis, the actual 97 exceedances versus an expectation of 52, led to reject the null hypothesis that the exceedances are correct and independent. Kupiec's unconditional coverage compares the number of expected versus actual exceedances given the tail probability of VaR, while the Christoffersen test is a joint test of the unconditional coverage and the independence of the exceedances. 
+
 
 ```{r model Backtest}
-wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 10, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
+wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 1, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
 
-show (wfc_garch_11_roll)
+wfc_garch_11_roll
+
 
 #4. examining backtest report
 report(wfc_garch_11_roll, type = "VaR", VaR.alpha = 0.01,conf.level = 0.99)
@@ -155,25 +175,28 @@ legend("topright", inset=.05, c("wfc return","VaR"), col = c("black","red"), lty
 
 ```
 
+
 ## 5. forecasting
-Calculate 99% VaR assuming the standard normal distribution. The next period VaR at 99% is ??? With 99% probabi;lity the daily return is above ???%
+
+Calculate 99% VaR assuming the standard normal distribution. The next period VaR at 99% is 0.50 With 99% probability; the daily return is above 50%
 
 ```{r model forecast}
 wfc_garch_11_fcst <- ugarchforecast(wfc_garch_11_fit, n.ahead = 12)
 wfc_garch_11_fcst
-wfc_garch_11_fcst1 = ugarchforecast(wfc_garch_11_fit, n.ahead = 1, n.roll = 499, data = wfc_sim_pret[1:1500, , drop = FALSE], out.sample = 500)
+#wfc_garch_11_fcst1<- ugarchforecast(wfc_garch_11_fit, n.ahead = 12, n.roll = 499, data = wfc_sim_pret[1:1500, drop = FALSE], out.sample = 500)
 
-qnorm(.99)*3.660
+qnorm(.99)*0.2168
 
 ```
 # Simulating GARCH Model
 
 ```{r Simulation}
 
-sim = ugarchsim(fit, n.sim = 1000, m.sim = 25, rseed = 1:25)
-simSig = as.data.frame(sim, which = 'sigma')
-simSer = as.data.frame(sim, which = 'series')
+sim <- ugarchsim(wfc_garch_11_fit, n.sim = 1000, m.sim = 25, rseed = 1:25)
+
 show(sim)
+
+par <- par("mar")
 plot(sim, which = 'all', m.sim = 24)
 
 
@@ -199,3 +222,5 @@ https://onlinecourses.science.psu.edu/stat510/node/61
 http://rpubs.com/VijayaG
 http://rexplor.blogspot.com/
 http://unstarched.net/r-examples/rugarch/a-short-introduction-to-the-rugarch-package/
+http://faculty.washington.edu/ezivot/econ589/univariateGarch2012powerpoint.pdf
+
