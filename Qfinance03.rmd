@@ -16,7 +16,7 @@ output:
 
 The basic assumption for time series analysis is that the data points are randomly distributed and have some dependency between data points close together in time but no dependency in data points far apart in time. These assumption can be explained by the stationarity and ergodicity concepts. 
 
-In a stationary stochastic process, the mean and variance doesn’t change over time. In addtion, in a strictly stationary or covariance stationary stochastic process no assumption is made about the strength of dependence between random data points in the sequence. The strength of dependence between random points in a stochastic process diminishes the farther apart the points become. This diminishing dependence assumption is captured by the concept of ergodicity. A stochastic process is ergodic if any two random points partitioned far apart in the sequence.
+In a stationary (weakly) stochastic process, mean and variance doesn’t change over time. Whereas, in a strictly stationary, in addtion to the first two moments, the covariance stays stationary. In otherwords, in a strictly stochastic process no assumption is made about the strength of dependence between random data points in the sequence. The strength of dependence between random points in a stochastic process diminishes the farther apart the points become. This diminishing dependence assumption is captured by the concept of ergodicity. A stochastic process is ergodic if any two random points partitioned far apart in the sequence.
 
 The autocovariances and autocorrelations are the measures of linear temporal dependence in a covariance stationary stochastic process, known as the autocorrelation function (ACF). This function revels the interrelationships within a time series or correlation between all pairs of data points that are exactly same steps apart.
 
@@ -54,7 +54,7 @@ acf(returns_lcc[,"wfc"])
 acf(returns_lcc[,"sp500"])
 acf(returns_lcc[,"vbltx"])
  acf(returns_lcc[,"aapl"])
-# BOx-Pierce test  for autocorrelation
+# BOx-Pierce test for autocorrelation
 btest<-Box.test(returns_lcc[,"wfc"])
 # The p value equal to 1 shows no autocorrelation.
 # The Ljung-Box test is similar to the simple box.test, generally used for smaller samples.
@@ -64,7 +64,7 @@ btest1<-Box.test((returns_lcc[,"wfc"]), type="Ljung-Box")
 
 ##Partial Autocorrelation (PACF)
 
-Partial Autocorrelation is a tool to understand interrelationships in a time series. It is the condtional correlation between all data points that are exactly n steps apart, after accounting for their correlation with the data between those n steps. It helps to identify the number of autoregression(AR) coefficients in an ARIMA model. For wcf,sp500,vbltx, and aapl no significant partial autocorrelation found for lag1.
+Partial Autocorrelation is a tool to understand interrelationships in a time series. It is the condtional correlation between all data points that are exactly n steps apart, after accounting for their correlation with the data between those n steps. It helps to figuring out how many lags to include in the model or the number of autoregression(AR) coefficients in an ARIMA model. For wcf, sp500, vbltx, and aapl no significant partial autocorrelation found. An ACF plot shows the propogation of   correlation at a a gven lag in a time series. However, in order to find lags, the PACF plots are used as these plots accounts correlations between those lags or steps. For example, if a PACF plot has a significant spike only at lag 1, it means that all the higher-order autocorrelations are effectively explained by the lag-1 autocorrelation.
 
 
 ```{r}
@@ -143,3 +143,7 @@ theForcast<-forecast(w1,h=5)
 plot(theForcast)
 
 ```
+
+Useful Resources
+http://people.duke.edu/~rnau/411arim3.htm (Great explanation of the ACF and PACF concept)
+
