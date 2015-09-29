@@ -16,7 +16,7 @@ output:
 
 The basic assumption for time series analysis is that the data points are randomly distributed and have some dependency between data points close together in time but no dependency in data points far apart in time. These assumption can be explained by the stationarity and ergodicity concepts. 
 
-In a stationary (weakly) stochastic process, mean and variance doesn’t change over time. Whereas, in a strictly stationary, in addtion to the first two moments, the covariance stays stationary. In otherwords, in a strictly stochastic process no assumption is made about the strength of dependence between random data points in the sequence. The strength of dependence between random points in a stochastic process diminishes the farther apart the points become. This diminishing dependence assumption is captured by the concept of ergodicity. A stochastic process is ergodic if any two random points partitioned far apart in the sequence.
+In a stationary (weakly) stochastic process, mean and variance doesn’t change over time. Whereas, in a strictly stationary, in addtion to the first two moments, the covariance stays stationary. In other words, in a strictly stochastic process no assumption is made about the strength of dependence between random data points in the sequence. The strength of dependence between random points in a stochastic process diminishes the farther apart the points become. This diminishing dependence assumption is captured by the concept of ergodicity. A stochastic process is ergodic if any two random points partitioned far apart in the sequence.
 
 The autocovariances and autocorrelations are the measures of linear temporal dependence in a covariance stationary stochastic process, known as the autocorrelation function (ACF). This function revels the interrelationships within a time series or correlation between all pairs of data points that are exactly same steps apart.
 
@@ -99,7 +99,7 @@ ccf((returns_lcc[,"aapl"]),(returns_lcc[,"wfc"]))
 
 ```
 
-##Fitting ARIMA Model
+## Fitting ARIMA Model
 
 Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2.Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. Diagnostic checking (e.g. Model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff (AR); d= degree of differencing ; q = number of moving average coeff (MA).
 https://onlinecourses.science.psu.edu/stat510/?q=book/export/html/49
@@ -117,7 +117,7 @@ auto.arima(returns[,"vbltx"])
 
 ```
 
-##Running diagnosis on an ARIMA Model
+## Running diagnosis on an ARIMA Model
 
 The tsdiag plots the residuals, the autocorrelation function of the residuals, and the p-values of a Portmanteau test for all lags.
 
