@@ -80,7 +80,7 @@ par(mfrow=c(1,1))
 
 ```
 
-##Finding lagged correlation between two time series
+## Finding lagged correlation between two time series
 
 The cross correlation function helps to discover lagged correlations between two time series. Correlation at lag 0 is the simple correlation between the variables. Theser is no lagged correlation found in our assets.
 
@@ -101,9 +101,27 @@ ccf((returns_lcc[,"aapl"]),(returns_lcc[,"wfc"]))
 
 ## Fitting ARIMA Model
 
-Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2. Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. Diagnostic checking (e.g. Model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff (AR); d= degree of differencing; q = number of moving average coeff (MA).
-https://onlinecourses.science.psu.edu/stat510/?q=book/export/html/49
-Ŷt = μ + Yt-1 + ϕ1 (Yt-1 - Yt-2) + ϕ2(Yt-2 - Yt-3)
+Building an ARIMA model consists three steps: 1.Model identification (involves determining the order that is the number of past values and number of past error terms to incorporate in a tentative model, 2. Model estimation (parameters of the model are estimated, generally using either the least squares or maximum likelihood methods), and 3. Diagnostic checking (e.g. Model residuals behave as white noise). The model order is usually denoted by three integers,(p,d,q), where, p= number of autoregressive coeff (AR); d= degree of differencing; q = number of moving average coeff (MA). 
+
+Model Equations
+
+AR(1): Ŷt = μ + θ1Yt-1 
+Note: The AR(1) models are the simplest ARIMA model, where the value at previous time step is used to predict the value at current time step The AR order indicates how many previous times steps are used to predict the value at present time. In AR(1) uses only one previous time step.
+
+MA(1):  Ŷt = μ + wt + θ1wt−1 
+MA(2) : Ŷt = μ + wt + θ1wt−1 + θ2wt−2
+Note: The MA coefficents are the past error term multiplied by a coefficent.
+Note: ACF suggest MA coefficents, whereas PACF suggests AR coefficents.
+
+ARIMA(0,1,1) : Ŷt = μ + Yt-1 - θ1wt -1
+Note: AR(0), Diff(1), MA(1)
+
+ARIMA(2,1,0): Ŷt = μ + Yt-1 + θ1(Yt-1 - Yt-2) + θ2(Yt-2 - Yt-3)
+Note: AR(2), Diff(1), MA(0)
+
+ARIMA(0,2,1): Ŷt = 2Yt-1 - Yt-2 - θ1wt-1
+Note: The differencing order refers to successive first differences. For example diff(2) refers to (yt-yt-1) - (yt-1-yt-2).
+
 
 ```{r}
 w<-(auto.arima(returns[,"wfc"]))
@@ -147,4 +165,5 @@ plot(theForcast)
 
 Useful Resources
 http://people.duke.edu/~rnau/411arim3.htm (Great explanation of the ACF and PACF concept)
+https://onlinecourses.science.psu.edu/stat510/?q=book/export 
 
