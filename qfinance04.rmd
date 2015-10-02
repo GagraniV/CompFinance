@@ -18,13 +18,13 @@ knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='cen
 
 ## Background and Objective
 
-Financial risk univariate volatility models included in this analysis are ARCH, GARCH, and EGRCH. These models are based on one of the key assumption of the ordinary least squares models that the expected value of all squared error terms or variance is same throughout the sample (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points, and thats what the center of the Autoregressive Conditional Heteroskedasticity models (ARCH).
+The goal of this repository is to discuss various Autoregressive Conditional Heteroskedasticity Models (ARCH) in field of financial risk which includes ARCH, GARCH, and EGRCH models. The ARCH models are based on one of the key assumption of the ordinary least squares models that the expected value of all squared error terms or variance is same throughout the sample (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points, and thats what the center of the Autoregressive Conditional Heteroskedasticity models (ARCH).
 
 Volatility is important in quantifying financial risk, portfolio selection, derivative pricing, and option pricing model. However, in financial time series, volatility occurs in clusters like periods of high volatility follows with high volatility and vice versa.  In addition, more recent events would be more relevant then the distant past events. The ARCH models utilize the heteroskedasticity in time series data to measure volatility (standard deviation). These models are applied to forecast mean, SD, and variance of return based on the past information. In addition, these models allow to use the best weights in forecasting variance instead of using equal weights for all past events.
 
-An ARCH model is similar to the AR(1) model on squared residuals. In an ARCH(1) model, next period’s variance only depends on last period’s squared residual (short memory). The ARCH model is extended as the Generalized ARCH or GARCH model by making variance conditional to both last period's as well as all past period's squared residuals (long memory). The typical GARCH model is described as GARCH(1,1) model. The first subscript in GARCH reefers to autoregressive lags or ARCH and second subscript refers to the moving average lags, respectively. These models are basically setup for one period forecast, however a long-horizon forecasting can be constructed. The ARCH/GARCH approaches are widely used in situations where volatility of return is a central issue.  
+An ARCH model is similar to the AR(1) model on squared residuals. In an ARCH(1) model, next period’s variance only depends on last period’s squared residual (short memory). The ARCH model is extended as the Generalized ARCH or GARCH model by making variance conditional to the squared residuals of the last and all past period's (long memory). The typical GARCH model is described as GARCH(1,1) model. The first subscript in GARCH reefers to autoregressive lags or ARCH and second subscript refers to the moving average lags, respectively. These models are basically setup for one period forecast, however a long-horizon forecasting can be constructed. The ARCH/GARCH approaches are widely used in situations where volatility of return is a central concern.  
 
-However, it is also well established that the volatility is more influenced by negative returns then the positive(leverage effect). The nonlinear GARCH, exponential GARCH, and threshold GARCH models accounts the leverage effect. It also is important to note the standard GARCH assumption that the model residuals are normally distributed, however returns on assets are often skewed or leptokurtosisic. 
+It is also well established that the volatility is more influenced by negative returns then the positive(leverage effect). The nonlinear GARCH, exponential GARCH, and threshold GARCH models accounts the leverage effect. It also is important to note the standard GARCH assumption that the model residuals are normally distributed, however returns on assets are often skewed or leptokurtosisic. 
 
 The clustered volatility phenomenon in financial data is visually detectable in simple line plots. In addition, we can identify it by applying two commonly used tests, first is the Ljung-Box test for autocorrelation in squared returns and second is the Lagrange Multiplier (LM test). In rugarch library there are different functions for model specification, parameter estimation, backtesting, and forecasting. 
 
@@ -49,7 +49,7 @@ library("rugarch")
 
 ## Testing ARCH Effect or No autocorrelation
 
-For a single asset, we are using wfc daily closing prices. First, the daily return is calculated using the daily price data. Daily returns are a sequence of independent and identically distributed random variable or i.i.d. sequence, means that return are unpredictable. Also, it means that returns at any given time are random values independent from previous returns. Returns are stationary(drown from an iid sequence), whereas daily prices are nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in daily return or the data are of heteroscedastic. The LM test also helps to determine the order of the ARCH model appropriate for the data. for wfc assets, the LM test indicated to use the GARCH model instead of the ARCH model, because the current variance depends on more than one past lag variances. 
+For a single asset, we are using wfc daily closing prices. First, the daily return is calculated using the daily price data. Daily returns are a sequence of independent and identically distributed random variable or i.i.d. sequence, means that return are unpredictable. Also, it means that returns at any given time are random values independent from previous returns. Returns are stationary (drown from an iid sequence), whereas daily prices are nonstationary. The Ljung-Box test and the Lagrange Multiplier indicated no autocorrelation exists in daily return or the data are of heteroscedastic. The LM test also helps to determine the order of the ARCH model appropriate for the data. for wfc assets, the LM test indicated to use the GARCH model instead of the ARCH model, because the current variance depends on more than one past lag variances. 
 
 
 ```{r test}
@@ -112,7 +112,7 @@ ArchTest(coredata(wfc_sim_pret))
 
 ## 1. GARCH Model Specification
 
-Specify the model using the Univariate GARCH Specification or ugarchspec function from the  rugarch library. Mean to be modeled as an ARMA(1, 1) or for the white noise (0,0).
+Specify the model using the univariate GARCH specification or ugarchspec function from the rugarch library. Mean to be modeled as an ARMA (1, 1) or for the white noise (0,0).
 
 ```{r model}
 wfc_garch_11_spec<- ugarchspec(variance.model = list(garchOrder = c(1, 1)), mean.model = list(armaOrder = c(0, 0)))
@@ -153,13 +153,13 @@ in this analysis, the actual 97 exceedances versus an expectation of 52, led to 
 
 
 ```{r model Backtest}
-wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 1, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01,keep.coef = TRUE)
+wfc_garch_11_roll <- ugarchroll(wfc_garch_11_spec, wfc_sim_pret, n.start = 120, refit.every = 1, refit.window = "moving",solver = "hybrid", calculate.VaR = TRUE, VaR.alpha = 0.01, keep.coef = TRUE)
 
 wfc_garch_11_roll
 
 
 #4. examining backtest report
-report(wfc_garch_11_roll, type = "VaR", VaR.alpha = 0.01,conf.level = 0.99)
+report(wfc_garch_11_roll, type = "VaR", VaR.alpha = 0.01, conf.level = 0.99)
 
 ```
 
@@ -184,7 +184,7 @@ legend("topright", inset=.05, c("wfc return","VaR"), col = c("black","red"), lty
 
 ## 5. Forecasting
 
-Calculate 99% VaR assuming the standard normal distribution. The next period VaR at 99% is 0.50 With 99% probability; the daily return is above 50%
+Calculate 99% VaR assuming the standard normal distribution. The next period VaR at 99% is 0.008375 With 99% probability; the daily return is above 50%
 
 ```{r model forecast}
 wfc_garch_11_fcst <- ugarchforecast(wfc_garch_11_fit, n.ahead = 12)
