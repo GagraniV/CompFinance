@@ -107,6 +107,9 @@ ArchTest(coredata(wfc_sim_pret))
 
 #The above two tests confirm that ARCH effect (no autocorrelation) exists in the monthly log return. Therefore we should employ the ARCH or GARCH volatility model.
 
+##making sequence in zoo
+seq(from = as.Date("2015-02-24"), to = as.Date("2015-04-13"), by = 1)
+
 ```
 
 
