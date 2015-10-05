@@ -187,7 +187,7 @@ legend("topright", inset=.05, c("wfc return","VaR"), col = c("black","red"), lty
 
 ## 5. Forecasting
 
-Calculate 99% VaR assuming the standard normal distribution. The next period VaR at 99% is 0.008375 With 99% probability; the daily return is above 50%
+Calculate 99% VaR assuming the standard normal distribution. The next period VaR at 99% is 0.008375 With 99% probability; the daily return is above -2%.
 
 ```{r model forecast}
 wfc_garch_11_fcst <- ugarchforecast(wfc_garch_11_fit, n.ahead = 12)
