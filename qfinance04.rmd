@@ -18,7 +18,7 @@ knitr::opts_chunk$set(comment = NA, echo= FALSE, message = FALSE, fig.align='cen
 
 ## Background and Objective
 
-The goal of this repository is to discuss various Autoregressive Conditional Heteroskedasticity Models (ARCH) in field of financial risk which includes ARCH, GARCH, and EGRCH models. The ARCH models are based on one of the key assumption of the ordinary least squares models that the expected value of all squared error terms or variance is same throughout the sample (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points, and thats what the center of the Autoregressive Conditional Heteroskedasticity models (ARCH).
+The goal of this repository is to discuss various Autoregressive Conditional Heteroskedasticity Models (ARCH) in field of financial risk which includes ARCH, GARCH, EGRCH, TGARCH models. The ARCH models are based on one of the key assumption of the ordinary least squares models that the expected value of all squared error terms or variance is same throughout the sample (homoskendasticity). The opposite concept is heterskendasticity, where variance of the error term is not constant for all points, and thats what the center of the Autoregressive Conditional Heteroskedasticity models (ARCH).
 
 Volatility is important in quantifying financial risk, portfolio selection, derivative pricing, and option pricing model. However, in financial time series, volatility occurs in clusters like periods of high volatility follows with high volatility and vice versa.  In addition, more recent events would be more relevant then the distant past events. The ARCH models utilize the heteroskedasticity in time series data to measure volatility (standard deviation). These models are applied to forecast mean, SD, and variance of return based on the past information. In addition, these models allow to use the best weights in forecasting variance instead of using equal weights for all past events.
 
@@ -95,6 +95,10 @@ wfc_sim_pret <- log_pret[,"wfc"]
 
 plot(wfc_sim_pret,main="Daily log Return on WFC", xlab = "Days", ylab="Return in %")
 
+# Testing the mean of returns. A simple one-sample test confirms weather the mean is significantly different from zero or not
+
+t.test(wfc_sim_pret)  
+
 #Coredata function eliminates any index and provides the data field only.
 
 Box.test(coredata(wfc_sim_pret^2), type = "Ljung-Box", lag = 12)
@@ -105,7 +109,7 @@ Box.test(coredata(wfc_sim_pret^2), type = "Ljung-Box", lag = 12)
 
 ArchTest(coredata(wfc_sim_pret))
 
-#The above two tests confirm that ARCH effect (no autocorrelation) exists in the monthly log return. Therefore we should employ the ARCH or GARCH volatility model.
+#The above two tests confirm that ARCH effect (no autocorrelation) exists in the daily log return. Therefore we should employ the ARCH or GARCH volatility model.
 
 ##making sequence in zoo
 seq(from = as.Date("2015-02-24"), to = as.Date("2015-04-13"), by = 1)
