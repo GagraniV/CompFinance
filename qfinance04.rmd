@@ -29,6 +29,14 @@ It is also well established that the volatility is more influenced by negative r
 The clustered volatility phenomenon in financial data is visually detectable in simple line plots. In addition, we can identify it by applying two commonly used tests, first is the Ljung-Box test for autocorrelation in squared returns and second is the Lagrange Multiplier (LM test). In rugarch library there are different functions for model specification, parameter estimation, backtesting, and forecasting. 
 
 
+## Model Simulation Equations:
+basic condition
+w coef.:intercept; Ht:variance; a: (ARCH (1)) coef.  is the first lag of squared return, b: (GARCH(1)) coef. is the first lag of condtional variance.
+ARCH(1): 
+
+GARCH(1,1) : w+a(Ht.Et2)+b(Ht).
+
+
 ```{r Initial_Settings_n_Basic_Stat}
 #set working directory
 #setwd("C:/Users/gagranis/Documents/Finance/Coursera/qfinance")
@@ -76,7 +84,7 @@ simple_pret<-diff(as.zoo(prices_mat[2:5]))/lag(as.zoo(prices_mat[2:5]),k=-1)*100
 
 
 (table.Stats(simple_pret))
-
+#wfc assest shows the evidence of fat tails, since the kurtosis exceeds 3, which is the normal value, and evidence of negative skewness, which means that the left tail is particularly extreme.
 
 returns <- log(prices_mat[2:5])
 
