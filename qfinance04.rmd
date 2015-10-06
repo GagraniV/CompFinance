@@ -30,12 +30,12 @@ The clustered volatility phenomenon in financial data is visually detectable in 
 
 
 ## Model Simulation Equations:
-basic condition
-w coef.:intercept; Ht:variance; a: (ARCH (1)) coef.  is the first lag of squared return, b: (GARCH(1)) coef. is the first lag of condtional variance.
-ARCH(1): 
 
-GARCH(1,1) : w+a(Ht.Et2)+b(Ht).
-
+X(t) = sigma(t).e(t),
+ARCH(1):    sigma(t)^2 = w + a1.X(t − 1)^2 + · · · + apX(t − p)^2
+GARCH(1,1): sigma(t)^2 = w + aX(t − 1)^2 + b.sigma(t − 1)^2
+EGARCH(1,1) :log.sigma(t)^2= w + L.abs(e(t-1)/sigma(t-1)) + L.abs(e(t-1)/sigma(t-1)) + blog.sigma(t-1)^2
+Where; X(t) =time series; w=omega; a=alpha; b=beta; L=Lembda;e:noise
 
 ```{r Initial_Settings_n_Basic_Stat}
 #set working directory
@@ -225,7 +225,10 @@ Tsay, R. S. (2014). An introduction to analysis of financial data with R. John W
 http://www.cmat.edu.uy/~mordecki/hk/engle.pdf
 http://faculty.washington.edu/ezivot/econ589/econ589univariateGarch.r
 http://faculty.washington.edu/ezivot/econ589/univariateGarch2012powerpoint.pdf
-http://faculty.washington.edu/ezivot/econ589/ch18-garch.pdf http://faculty.washington.edu/ezivot/econ584/notes/timeSeriesConcepts.pdf
+http://faculty.washington.edu/ezivot/econ589/ch18-garch.pdf
+http://www.ssc.wisc.edu/~bhansen/econometrics/ (Economics 582:  Econometrics III)
+http://faculty.chicagobooth.edu/john.cochrane/research/papers/time_series_book.pdf(Economics 582:  Econometrics III)
+http://faculty.washington.edu/ezivot/econ584/notes/timeSeriesConcepts.pdf
 http://www.r-bloggers.com/a-practical-introduction-to-garch-modeling/
 https://onlinecourses.science.psu.edu/stat510/node/61
 http://rpubs.com/VijayaG
