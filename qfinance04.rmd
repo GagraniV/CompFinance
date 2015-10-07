@@ -235,4 +235,4 @@ http://rpubs.com/VijayaG
 http://rexplor.blogspot.com/
 http://unstarched.net/r-examples/rugarch/a-short-introduction-to-the-rugarch-package/
 http://faculty.washington.edu/ezivot/econ589/univariateGarch2012powerpoint.pdf
-
+Modern Portfolio Theory and Investment Analysis, by E.J. Elton et al., Wiley, New York. 
