@@ -97,11 +97,12 @@ sum<-summary(log_pret)
 
 minwfc<-log_pret[which.min(log_pret$wfc)]
 
-wfc_sim_pret <- log_pret[,"wfc"]
+wfc_ret <- log_pret[,"wfc"]
+
 # The largest one month loass for wfc was -36%.
 # The largest one month loass for wfc was -36%.
 
-plot(wfc_sim_pret,main="Daily log Return on WFC", xlab = "Days", ylab="Return in %")
+plot(minwfc,main="Daily log Return on WFC", xlab = "Days", ylab="Return in %")
 
 # Testing the mean of returns. A simple one-sample test confirms weather the mean is significantly different from zero or not
 
@@ -223,16 +224,29 @@ Tsay, R. S. (2014). An introduction to analysis of financial data with R. John W
 
 
 http://www.cmat.edu.uy/~mordecki/hk/engle.pdf
+
 http://faculty.washington.edu/ezivot/econ589/econ589univariateGarch.r
+
 http://faculty.washington.edu/ezivot/econ589/univariateGarch2012powerpoint.pdf
+
 http://faculty.washington.edu/ezivot/econ589/ch18-garch.pdf
+
 http://www.ssc.wisc.edu/~bhansen/econometrics/ (Economics 582:  Econometrics III)
+
 http://faculty.chicagobooth.edu/john.cochrane/research/papers/time_series_book.pdf(Economics 582:  Econometrics III)
+
 http://faculty.washington.edu/ezivot/econ584/notes/timeSeriesConcepts.pdf
+
 http://www.r-bloggers.com/a-practical-introduction-to-garch-modeling/
+
 https://onlinecourses.science.psu.edu/stat510/node/61
+
 http://rpubs.com/VijayaG
+
 http://rexplor.blogspot.com/
+
 http://unstarched.net/r-examples/rugarch/a-short-introduction-to-the-rugarch-package/
+
 http://faculty.washington.edu/ezivot/econ589/univariateGarch2012powerpoint.pdf
+
 Modern Portfolio Theory and Investment Analysis, by E.J. Elton et al., Wiley, New York. 
