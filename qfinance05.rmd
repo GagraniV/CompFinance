@@ -34,22 +34,25 @@ library("rugarch")
 ```
 
 ## Vector Autoregressive Models (VAR) with R
-Goal of this repositoy is to understand econometric models and methods for the multiple return finacial time series. These models and methods are known as vector or multivariate time series analysis.
+The goal of this repositoy is to uexplore the econometric models and methods for the multiple return finacial time series known as the vector or multivariate time series analysis.
 
-The Vector autoregressive models (VAR) are the multivariate extensions of the univariate autoregressive (AR) models, captures the linear dependencies among multiple time series. As per the VAR model each variable is evolved through a linear function of all other lagged variables. All variables depends on the past values of its own as well as the other variables in consideration. For a VAR model, all variables have to be stationary, else show the same order of integration. In case if the variables are nonstationary, or cointegrated, the error correction term is included in the VAR and the model is known as Vector Error Correction Model (VECM). 
+The Vector autoregressive models (VAR) are the multivariate extensions of the univariate autoregressive (AR) models, captures the linear dependencies among multiple time series. As per the VAR model each variable is evolved through a linear function of all other lagged variables. All variables depends on the past values of it's own as well as the other variables in consideration. For a VAR model, all variables have to be stationary, else show the same order of integration. In case if the variables are nonstationary, or cointegrated, the error correction term is included in the VAR and then the model is considered as the Vector Error Correction Model (VECM). 
 
-More than one assests can be modeled using the multivariate ARCH/GARCH model often known as the VEC-GARCH model (Vector Error Correction Models), replacing the volatility parameter with the covariance matrix.
+In addition to model the linear dependencies on multiple varibles, VAR models are used to model the covariance of multiple assessts using the multivariate ARCH/GARCH model often known as the VEC-GARCH model (Vector Error Correction Models), replacing the volatility parameter with the covariance matrix.
 
-A strict stationary time series have means and variance unchaged for a shift in time, however a weak stationary time series, mean and covariances unchaged for a shift in time. The nonstationary time series shows the stocastic trends, cycles, random walks, or combinations of the three. Regression models without accounting the nonstationarity results into spurious regressions (situation like when two economic variables seems related over time, but in fact they are not). Cointegration technique is useful to investigate the cointegrated or nonstationary variables. If all variables in an econometric model share a common stochastic trend, the cointegration analysis uncovers the long-term relationship and the short-term dynamics while controling the spurious regression problem.The following two tests: the Engle-Granger and the Johansen-Juselius are used to test the cointegration. 
+A strict stationary time series have means and variance unchaged for a shift in time, however for a weak stationary time series, mean and covariances unchaged for a shift in time. The nonstationary time series shows the stocastic trends, cycles, random walks, or combinations of the three. Regression models without accounting the nonstationarity results into spurious regressions (situation like when two economic variables seems related over time, but in fact they are not). Cointegration technique is useful to investigate the cointegrated or nonstationary variables. If all variables in an econometric model share a common stochastic trend, the cointegration analysis uncovers the long-term relationship and the short-term dynamics while controling the spurious regression problem. The following two tests: the Engle-Granger and the Johansen-Juselius are used to test the cointegration. 
 (http://denizstij.blogspot.com/2013/11/cointegration-tests-adf-and-johansen.html
 https://cran.r-project.org/web/packages/egcm/egcm.pdf)
 Augmented Dickey–Fuller (ADF) t-statistic test: small p-values suggest (library(urca)).
 
-A VAR model is primarily used to assess the Impulse-response from a stress. Essentially, an impulse-response function shows how a variable reacts (response) to a shock (impulse) influencing any other variable in the system. For example the impulse response of 1SD shock in S&P prices for an univariate analysis. For multivariate analysis, covariance matrix is used.
+A VAR model is primarily used to assess the Impulse-response from a stress. Essentially, an impulse-response function shows how a variable reacts (response) to a shock (impulse) influencing any other variable in the system. For example the impulse response of 1SD shock in S&P prices for an univariate analysis. 
+
 In this analysis following three datasets are used:
+
 1. Equity Return (wfc)
 2. Stock Index (S&P500)
 3. US Treasury bond interest rates
+
 The primary purpose is to make a forecast for the S&P index by using two additional variables and to identify impulse responses. The above three variable holds a long term relationship.
 
 The main advantage with SVAR analysis is that the necessary restrictions on the estimated reduced VAR model, required for identification of the underlying structural model, can be provided by economic theory.These restrictions can be either contemporaneous or long-run in nature depending on whether the underlying disturbances are considered to be temporary or permanent in nature. Once the identification is achieved it is possible to recover the structural shocks. These shocks can then be used to generate impulse response and variance decomposition functions to assess the dynamic impacts of different economic variables. In addition these functions can be used to test whether such shocks affect the economic variables as economic theory would predict so providing a check on the theory.
@@ -84,7 +87,6 @@ Fabozzi, F. J., Focardi, S. M., Rachev, S. T., & Arshanapalli, B. G. (2014). The
 http://www.investopedia.com
 
 http://www.cmat.edu.uy/~mordecki/hk/engle.pdf
-http://faculty.washington.edu/ezivot/econ589/econ589univariateGarch.r
 http://faculty.washington.edu/ezivot/econ589/univariateGarch2012powerpoint.pdf
 http://www.r-bloggers.com/a-practical-introduction-to-garch-modeling/
 https://onlinecourses.science.psu.edu/stat510/node/61
