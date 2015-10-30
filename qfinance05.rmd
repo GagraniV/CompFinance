@@ -40,10 +40,11 @@ The Vector autoregressive models (VAR) are the multivariate extensions of the un
 
 In addition to model the linear dependencies on multiple varibles, VAR models are used to model the covariance of multiple assessts using the multivariate ARCH/GARCH model often known as the VEC-GARCH model (Vector Error Correction Models), replacing the volatility parameter with the covariance matrix.
 
-Statistical properties do not changes for a shift in time for the stationary time series. In a strict stationary time series all moments of all degreesare stays same. However, for general pupose a weak defination is used, where only two moments(means and variance) unchaged for a shift in time, and autocorrelation/covariance only depends on the lag.
+Statistical properties of the for the stationary time series do not changes for a shift in time. In a strict stationary time series all moments of all degrees stays same. However, for general pupose a weak defination is used, where only two moments(means and variance) unchaged for a shift in time, and autocorrelation/covariance only depends on the lag.
 
-The stylized facts are statistical propertis which stays consitent over a time period for a type of a dataset. For example, for finacial returns often exhibits fat tails and the autocorrelation. 
-The cross correlation matices(CCM) of a week stationary vector time sereis, the diagonal elements contains the autocorrrelation function, the off diagonal elements measures the concurrent linear relationship,
+The stylized facts are statistical propertis which stays consitent over a time period for a type of a dataset. For finacial time series such as returns often exhibits fat tails and the autocorrelation. 
+
+In the cross correlation matices(CCM) of a week stationary vector time sereis, the diagonal elements contains the autocorrrelation function, the off diagonal elements measures the concurrent linear relationship,
 
 The nonstationary time series shows the stocastic trends, cycles, random walks, or combinations of the three. Regression models without accounting the nonstationarity results into spurious regressions (situation like when two economic variables seems related over time, but in fact they are not). Cointegration technique is useful to investigate the cointegrated or nonstationary variables. If all variables in an econometric model share a common stochastic trend, the cointegration analysis uncovers the long-term relationship and the short-term dynamics while controling the spurious regression problem. The following two tests: the Engle-Granger and the Johansen-Juselius are used to test the cointegration. 
 
