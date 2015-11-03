@@ -34,7 +34,7 @@ library("rugarch")
 ```
 
 ## Vector Autoregressive Models (VAR) with R
-The goal of this repositoy is to explore the econometric models and methods to analyze multiple finacial time series of returns, known as the vector or multivariate time series analysis models.
+This repository focuses on to explore the econometric models and methods to analyze multiple finacial time series of returns, known as the vector or multivariate time series analysis models.
 
 The Vector autoregressive models (VAR) are the multivariate extensions of the univariate autoregressive (AR) models, captures the linear dependencies among multiple time series. As per the VAR model each variable is evolved through a linear function of all other lagged variables. All variables depends on the past values of it's own as well as the other variables in consideration. For a VAR model, all variables have to be stationary, else show the same order of integration. In case if the variables are nonstationary, or cointegrated, the error correction term is included in the VAR and then the model is considered as the Vector Error Correction Model (VECM). 
 
@@ -97,3 +97,6 @@ http://www.cmat.edu.uy/~mordecki/hk/engle.pdf
 http://faculty.washington.edu/ezivot/econ589/univariateGarch2012powerpoint.pdf
 http://www.r-bloggers.com/a-practical-introduction-to-garch-modeling/
 https://onlinecourses.science.psu.edu/stat510/node/61
+http://faculty.washington.edu/ezivot/econ584/notes/varModels.pdf
+https://www.otexts.org/fpp/9/2
+
