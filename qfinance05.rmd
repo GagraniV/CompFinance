@@ -35,19 +35,19 @@ library("rugarch")
 
 ## Vector Autoregressive Models (VAR) with R
 
-This repository focuses on to explore the econometric models and methods to analyze multiple finacial time series of returns, known as the vector or multivariate time series analysis models.
+This repository focuses to explore the econometric models and methods to analyze multiple finacial time series of returns, known as the vector or multivariate time series analysis models.
 
 The Vector autoregressive models (VAR) are the multivariate extensions of the univariate autoregressive (AR) models, captures the linear dependencies among multiple time series. As per the VAR model each variable is evolved through a linear function of all other lagged variables. All variables depends on the past values of it's own as well as the other variables in consideration. For a VAR model, all variables have to be stationary, else show the same order of integration. In case if the variables are nonstationary, or cointegrated, the error correction term is included in the VAR and then the model is considered as the Vector Error Correction Model (VECM). 
 
 In addition to model the linear dependencies on multiple varibles, VAR models are used to model the covariance of multiple assessts using the multivariate ARCH/GARCH model often known as the VEC-GARCH model (Vector Error Correction Models), replacing the volatility parameter with the covariance matrix.
 
-Statistical properties of the for the stationary time series do not changes for a shift in time. In a strict stationary time series all moments of all degrees stays same. However, for general pupose a weak defination is used, where only two moments(mean and variance) unchaged for a shift in time(or mean reversion), and autocorrelation/covariance only depends on the lag length.
+Statistical properties of the stationary time series do not changes for a shift in time. In a strict stationary time series all moments of all degrees stays same. However, for general purpose a weak defination is used, where only two moments (mean and variance) unchaged for a shift in time (or mean reversion), and autocorrelation/covariance only depends on the lag length.
 
 The stylized facts are statistical propertis which stays consitent over a time period for a type of a dataset. For finacial time series, returns often exhibits fat tails and autocorrelation. 
 
-In the cross correlation matices(CCM) of a week stationary vector time sereis, the diagonal elements contains the autocorrrelation function, the off diagonal elements measures the concurrent linear relationship,
+In the cross correlation matices(CCM) of a week stationary vector time sereis, the diagonal elements contains the autocorrrelation function, the off diagonal elements measures the concurrent linear relationship.
 
-The non-stationary time series wanders arbitrarily far from the mean. Therefore, these time series shows the stocastic trends, cycles, random walks, or combinations of all. In order to find out wheather a time series is non-stationary, unit root tests are carried out using the autoregressive models, one of such test is the Dickey-Fuller test. Also, in case when residuals are autocorrelated then use the Augumented Dickey-Fuller tests(ADF). The ADF includes addtional lags. The unit root test are used to detrend data to render staionarity using first diffrenced or regressed on determistic functions of time or using the cointegration techniques for the long-run relations.   
+The non-stationary time series wanders arbitrarily far from the mean. Therefore, these time series shows the stocastic trends, cycles, random walks, or combinations of all. In order to find out wheather a time series is non-stationary, unit root tests are carried out using the autoregressive models, one of such test is the Dickey-Fuller test. However, if residuals are autocorrelated, use the Augumented Dickey-Fuller tests (ADF). The ADF test includes addtional lags. The unit root test are used to detrend data to render staionarity using first diffrenced or regressed on determistic functions of time or using the cointegration techniques for the long-run relations.   
 
 Regression models without accounting the non-stationarity results into spurious regressions (situation like when two economic variables seems related over time, but in fact they are not). Cointegration technique is useful to investigate the cointegrated or nonstationary variables. If all variables in an econometric model share a common stochastic trend, the cointegration analysis uncovers the long-term relationship and the short-term dynamics while controling the spurious regression problem. The following two tests: the Engle-Granger and the Johansen-Juselius are used to test the cointegration. 
 
@@ -104,3 +104,5 @@ http://faculty.washington.edu/ezivot/econ584/notes/varModels.pdf
 https://www.otexts.org/fpp/9/2
 http://freakonometrics.hypotheses.org/12729 : unit root tests
 http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3223325/ : nih 
+https://www.kevinsheppard.com/images/5/56/Chapter5.pdf :VAR pdf
+https://www.youtube.com/watch?v=uBeM1FUk4Ps :  mit
