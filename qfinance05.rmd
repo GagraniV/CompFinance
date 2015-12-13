@@ -106,3 +106,4 @@ http://freakonometrics.hypotheses.org/12729 : unit root tests
 http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3223325/ : nih 
 https://www.kevinsheppard.com/images/5/56/Chapter5.pdf :VAR pdf
 https://www.youtube.com/watch?v=uBeM1FUk4Ps :  mit
+http://dybfin.wustl.edu/teaching/finopt/pdfslides/eigen.pdf :egnevalue
