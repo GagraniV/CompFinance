@@ -70,6 +70,33 @@ The main advantage with SVAR analysis is that the necessary restrictions on the 
 
 ```{}
 # data download, Interest rates are downloaded from the FRED (Federal Reserve Economic Data) data source. rest two are from yahoo finance.
+
+#Board of Governors of the Federal Reserve System (US), 3-Month Treasury Bill: Secondary Market Rate [DTB3], retrieved from FRED, Federal Reserve Bank of St. Louis https://research.stlouisfed.org/fred2/series/DTB3/, November 7, 2015.
+
+
+getSymbols("wfc", src = "yahoo", from ="1994-03-01", to = "2015-10-31")
+getSymbols("^GSPC",src = "yahoo", from ="1994-03-01", to = "2015-10-31")
+getSymbols('DTB3', src='FRED')
+
+# extract adjusted closing prices
+
+WFC <- WFC[, "WFC.Adjusted", drop=F]
+GSPS <- GSPC[, "GSPC.Adjusted", drop=F]
+
+data<-merge(
+  WFC,
+  GSPS,
+  DTB3
+)["1994-03-01::2015-08-30"]
+
+
+
+par(mfrow=c(2,2))
+
+
+plot(WFC)
+plot(GSPC)
+
 #The R package, "vars" provide an excellent framework for this analysis.
 # Important R packages for this analysis are vars and quantmod.
 
@@ -77,6 +104,8 @@ getSymbols('MSFT', from='2004-01-02', to='2014-03-31')
 getSymbols('SNP', from='2004-01-02', to='2014-03-31')
 getSymbols('DTB3', src='FRED')
 plot...
+
+
 #Reduced VAR model
 var1 <- VAR(dataDaily, lag.max=4, ic="AIC")
 VARselect(dataDaily,lag.max=4)
@@ -88,6 +117,7 @@ plot(var.irf)
 #structural VAR
 
 #SVAR
+
 ```
 
 Berlinger, E., Illés, F., Badics, M., Banai, Á., Daróczi, G., Dömötör, B., ... & Vidovics-Dancs, Á. (2015). Mastering R for Quantitative Finance. Packt Publishing Ltd.
@@ -107,3 +137,6 @@ http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3223325/ : nih
 https://www.kevinsheppard.com/images/5/56/Chapter5.pdf :VAR pdf
 https://www.youtube.com/watch?v=uBeM1FUk4Ps :  mit
 http://dybfin.wustl.edu/teaching/finopt/pdfslides/eigen.pdf :egnevalue
+https://cran.r-project.org/web/packages/vars/vignettes/vars.pdf :var example
+http://ftp.uni-bayreuth.de/math/statlib/R/CRAN/doc/vignettes/vars/vars.pdf :var example2
+
