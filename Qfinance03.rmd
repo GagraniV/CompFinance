@@ -166,4 +166,5 @@ plot(theForcast)
 Useful Resources
 http://people.duke.edu/~rnau/411arim3.htm (Great explanation of the ACF and PACF concept)
 https://onlinecourses.science.psu.edu/stat510/?q=book/export 
+http://econweb.tamu.edu/cschulman/class/Sas%20Docs/ARIMA%20Procedure.pdf : ARIM in SAS
 
