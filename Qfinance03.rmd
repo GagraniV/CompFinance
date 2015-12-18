@@ -46,25 +46,33 @@ returns <- read.csv("~/Finance/Coursera/qfinance/returns.csv")
 ```
 
 ```{r}
-# Test for no autocorrelation in returns
+# Test to check stationarity in returns. For a non-stationary time series, ACF function trails off slowly to zero. Therefore, in our case the acf plots are showing stationary time serieses.
+
 par <- par("mar")
 par(mar=rep(3,4))
 par(mfrow=c(2,2))
 acf(returns_lcc[,"wfc"])
 acf(returns_lcc[,"sp500"])
 acf(returns_lcc[,"vbltx"])
- acf(returns_lcc[,"aapl"])
-# BOx-Pierce test for autocorrelation
+acf(returns_lcc[,"aapl"])
+ 
+# The Box-Pierce test examines if there is a significant evidence for non-zero correlations in lage 1 to n. Small p-values (i.e., less than 0.05) suggest that the series is non-stationary(rejecting the null hypothesis). However, in wfc time series the p value is equal to 0.95, so the null hypothesis is not rejected, mean the series is stationary.
 btest<-Box.test(returns_lcc[,"wfc"])
-# The p value equal to 1 shows no autocorrelation.
+
 # The Ljung-Box test is similar to the simple box.test, generally used for smaller samples.
 btest1<-Box.test((returns_lcc[,"wfc"]), type="Ljung-Box")
+
+#The Augmented Dickey-Fuller test for the null that the time series has a unit root. The null hypothesis is rejected at 0.05 significance level, that the wfc time sereis is stationary with p value 0.01.
+adf.test((returns_lcc[,"wfc"]),alternative ="stationary")
+
+#Computes the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test for the null hypothesis that x is level or trend stationary.The p-value is 0.1, so the null hypothesis is not rejected at the usual 0.05 level). The time series is stationary.
+k<-kpss.test(returns_lcc[,"wfc"],null="Trend")
 
 ```
 
 ##Partial Autocorrelation (PACF)
 
-Partial Autocorrelation is a tool to understand interrelationships in a time series. It is the condtional correlation between all data points that are exactly n steps apart, after accounting for their correlation with the data between those n steps. It helps to figuring out how many lags to include in the model or the number of autoregression(AR) coefficients in an ARIMA model. For wcf, sp500, vbltx, and aapl no significant partial autocorrelation found. An ACF plot shows the propogation of   correlation at a a given lag in a time series. However, in order to find lags, the PACF plots are used because these plots accounts correlations between those lags or steps. For example, if a PACF plot has a significant spike only at lag 1, it means that all the higher-order autocorrelations are effectively explained by the lag-1 autocorrelation.
+Partial Autocorrelation is a tool to understand interrelationships in a time series. It is the condtional correlation between all data points that are exactly n steps apart, after accounting for their correlation with the data between those n steps. It helps to figuring out how many lags to include in the model or the number of autoregression(AR) coefficients in an ARIMA model. For wcf, sp500, vbltx, and aapl no significant partial autocorrelation found. An ACF plot shows the propogation of correlation at a a given lag in a time series. However, in order to find lags, the PACF plots are used because these plots accounts correlations between those lags or steps. For example, if a PACF plot has a significant spike only at lag 1, it means that all the higher-order autocorrelations are effectively explained by the lag-1 autocorrelation.
 
 
 ```{r}
