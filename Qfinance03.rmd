@@ -65,6 +65,9 @@ btest1<-Box.test((returns_lcc[,"wfc"]), type="Ljung-Box")
 #The Augmented Dickey-Fuller test for the null that the time series has a unit root. The null hypothesis is rejected at 0.05 significance level, that the wfc time sereis is stationary with p value 0.01.
 adf.test((returns_lcc[,"wfc"]),alternative ="stationary")
 
+# Phillips-Perron test for the null hypothesis that x has a unit root.The null hypothesis is rejected at 0.05 significance level, that the wfc time sereis is stationary with p value 0.01.
+pp.test((returns_lcc[,"wfc"]),alternative ="stationary"). 
+
 #Computes the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test for the null hypothesis that x is level or trend stationary.The p-value is 0.1, so the null hypothesis is not rejected at the usual 0.05 level). The time series is stationary.
 k<-kpss.test(returns_lcc[,"wfc"],null="Trend")
 
