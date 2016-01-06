@@ -180,3 +180,4 @@ https://onlinecourses.science.psu.edu/stat510/?q=book/export
 http://econweb.tamu.edu/cschulman/class/Sas%20Docs/ARIMA%20Procedure.pdf : ARIM in SAS
 http://www.okstate.edu/sas/v7/sashtml/books/ets/chap7/sect21.htm#idxari0123 : SAS
 http://documents.software.dell.com/Statistics/Textbook/Time-Series-Analysis :Time series book
+http://people.duke.edu/~rnau/411arim3.htm (duke university)
