@@ -67,6 +67,9 @@ The primary purpose is to make a forecast for the S&P index by using two additio
 
 The main advantage with SVAR analysis is that the necessary restrictions on the estimated reduced VAR model, required for identification of the underlying structural model, can be provided by economic theory.These restrictions can be either contemporaneous or long-run in nature depending on whether the underlying disturbances are considered to be temporary or permanent in nature. Once the identification is achieved it is possible to recover the structural shocks. These shocks can then be used to generate impulse response and variance decomposition functions to assess the dynamic impacts of different economic variables. In addition these functions can be used to test whether such shocks affect the economic variables as economic theory would predict so providing a check on the theory.
 
+Granger Causality is a standard method to know if a varaible is useful in predicting other varible. Presence of GC indicates that a VAR instead of a univariate model is needed. 
+
+Impulse Response Function(IRFs): In univariate time series, ACF tells about the shocks decay. However, for the vector data, it can affect the other varibles in consideration. The popular way is to simulate the effect of a unit shock. 
 
 ```{}
 # data download, Interest rates are downloaded from the FRED (Federal Reserve Economic Data) data source. rest two are from yahoo finance.
@@ -107,9 +110,20 @@ plot...
 
 
 #Reduced VAR model
-var1 <- VAR(dataDaily, lag.max=4, ic="AIC")
+var1 <- VAR(dataDaily, lag.max=4, type="both", ic="AIC")
 VARselect(dataDaily,lag.max=4)
 summary(var1)
+
+#acf for residuals
+acf(residuals(var1)[,1])
+acf(residuals(var1)[,2])
+acf(residuals(var1)[,3])
+acf(residuals(var1)) # cross correlation matrix for all residuals
+
+
+#Granger Causality. NULL: No GC. Rejectining null hypothesis shows that the varibles have an interdependency and should be included.
+
+
 
 var.pred <- predict(var1, n.ahead=10, ci=0.95)
 var.irf <- irf(var1)
@@ -139,4 +153,4 @@ https://www.youtube.com/watch?v=uBeM1FUk4Ps :  mit
 http://dybfin.wustl.edu/teaching/finopt/pdfslides/eigen.pdf :egnevalue
 https://cran.r-project.org/web/packages/vars/vignettes/vars.pdf :var example
 http://ftp.uni-bayreuth.de/math/statlib/R/CRAN/doc/vignettes/vars/vars.pdf :var example2
-
+https://onlinecourses.science.psu.edu/stat510/node/79 :Penn State
