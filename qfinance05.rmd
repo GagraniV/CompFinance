@@ -59,9 +59,12 @@ A VAR model is primarily used to assess the Impulse-response from a stress. Esse
 
 In this analysis following three datasets are used:
 
-1. Equity Return (wfc)  
-2. Stock Index (S&P500)
-3. US Treasury bond interest rates
+1. Equity Return: (wfc) : Source: CRSP, "Center for Reserch in Security Prices"
+2. Real labor income growth : log change in income from labor minus the log change in core inflation :FRED
+3.  The term premium: it is the diffrence between the yield on a 10 year constant maturity bond and the 3-month t-bill rate: FRED
+4.  The relative t-bill rate: current yeld on a 1-month t bill minus the average yield over the past 12 months :Ken French's web site
+5.  the divident yield: the diffrence in returns on wfc with and without dividens :CRSP
+6.  inflation and gdp
 
 The primary purpose is to make a forecast for the S&P index by using two additional variables and to identify impulse responses. The above three variable holds a long term relationship.
 
@@ -70,6 +73,10 @@ The main advantage with SVAR analysis is that the necessary restrictions on the 
 Granger Causality is a standard method to know if a varaible is useful in predicting other varible. Presence of GC indicates that a VAR instead of a univariate model is needed. 
 
 Impulse Response Function(IRFs): In univariate time series, ACF tells about the shocks decay. However, for the vector data, it can affect the other varibles in consideration. The popular way is to simulate the effect of a unit shock. 
+
+Cointegration: In situation when time series under consideration for VAR shows a temporary deviation from there long run relationship or trend, but ultimately mean reverting to this trend, the cointegration and error correction provide the tool to analyze temporary deviations from long run equlibria.
+
+Error Correction Models(ECM): An ECM is a structure, which overns short deviations from the trend.
 
 ```{}
 # data download, Interest rates are downloaded from the FRED (Federal Reserve Economic Data) data source. rest two are from yahoo finance.
@@ -122,6 +129,37 @@ acf(residuals(var1)) # cross correlation matrix for all residuals
 
 
 #Granger Causality. NULL: No GC. Rejectining null hypothesis shows that the varibles have an interdependency and should be included.
+GC can be bivariate or multivariate.
+
+
+# METHOD 1: LMTEST PACKAGE
+library(lmtest)
+grangertest(unemp_rate ~ hpi_rate, order = 1, data = ts2)
+# Granger causality test
+#
+# Model 1: unemp_rate ~ Lags(unemp_rate, 1:1) + Lags(hpi_rate, 1:1)
+# Model 2: unemp_rate ~ Lags(unemp_rate, 1:1)
+#   Res.Df Df      F  Pr(>F)
+# 1     55
+# 2     56 -1 4.5419 0.03756 *
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# METHOD 2: VARS PACKAGE
+library(vars)
+var <- VAR(ts2, p = 1, type = "const")
+causality(var, cause = "hpi_rate")$Granger
+#         Granger causality H0: hpi_rate do not Granger-cause unemp_rate
+#
+# data:  VAR object var
+# F-Test = 4.5419, df1 = 1, df2 = 110, p-value = 0.0353
+
+# AUTOMATICALLY SEARCH FOR THE MOST SIGNIFICANT RESULT
+for (i in 1:4)
+  {
+  cat("LAG =", i)
+  print(causality(VAR(ts2, p = i, type = "const"), cause = "hpi_rate")$Granger)
+  }
 
 
 
@@ -154,3 +192,5 @@ http://dybfin.wustl.edu/teaching/finopt/pdfslides/eigen.pdf :egnevalue
 https://cran.r-project.org/web/packages/vars/vignettes/vars.pdf :var example
 http://ftp.uni-bayreuth.de/math/statlib/R/CRAN/doc/vignettes/vars/vars.pdf :var example2
 https://onlinecourses.science.psu.edu/stat510/node/79 :Penn State
+
+http://support.sas.com/documentation/cdl/en/etsug/63348/HTML/default/viewer.htm#etsug_varmax_sect048.htm :SAS example
