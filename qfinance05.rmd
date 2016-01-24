@@ -159,27 +159,24 @@ summary(ymat00.0.VAR.const.0)
 
 plot(irf(ymat00.0.VAR.const.0, impulse="UNRATE"))
 
-# METHOD 2: VARS PACKAGE
-library(vars)
-var <- VAR(dataDaily, p = 1, type = "const")
-causality(var, cause = "VBLTX.Adjusted")$Granger
-#Granger causality H0: hpi_rate do not Granger-cause unemp_rate
+
+# Granger-cause
+
+causality(ymat00.0.VAR.const.0, cause = "UNRATE")$Granger
+#Granger causality H0: UNRATE do not Granger-cause FEDFUNDS CPIAUCSL
 
 
 # AUTOMATICALLY SEARCH FOR THE MOST SIGNIFICANT RESULT
 for (i in 1:10)
   {
   cat("LAG =", i)
-  print(causality(VAR(dataDaily, p = i, type = "const"), cause = "VBLTX.Adjusted")$Granger)
+  print(causality(VAR(ymat00.0, p = i, type = "const"), cause = "UNRATE")$Granger)
   }
 
 
+var.pred <- predict(ymat00.0.VAR.const.0, n.ahead=10, ci=0.95)
+var.pred
 
-
-var.pred <- predict(var1, n.ahead=10, ci=0.95)
-var.irf <- irf(var1)
-plot(var.irf)
-#structural VAR
 
 ```
 
