@@ -60,12 +60,11 @@ A VAR model is primarily used to assess the Impulse-response from a stress. Esse
 In this analysis following three datasets are used:
 
 1. Equity Return: (wfc) : Source: CRSP, "Center for Reserch in Security Prices"
-2. Real labor income growth : log change in income from labor minus the log change in core inflation :FRED
-3.  The term premium: it is the diffrence between the yield on a 10 year constant maturity bond and the 3-month t-bill rate: FRED
-4.  The relative t-bill rate: current yeld on a 1-month t bill minus the average yield over the past 12 months :Ken French's web site
-5.  the divident yield: the diffrence in returns on wfc with and without dividens :CRSP
-6.  inflation and gdp
+2. UNRATE: Civilian Unemployment Rate. It represents the number of unemployed as a percentage of the labor force.
+3. FEDFUNDS: Effective Federal Funds Rate.  The federal funds rate is the central interest rate in the U.S. 
+4. CPIAUCSL: Consumer Price Index for All Urban Consumers: All Items. it is a measure of the average monthly change in the price for goods and services paid by urban consumers between any two time periods.
 
+financial market.
 The primary purpose is to make a forecast for the S&P index by using two additional variables and to identify impulse responses. The above three variable holds a long term relationship.
 
 The main advantage with SVAR analysis is that the necessary restrictions on the estimated reduced VAR model, required for identification of the underlying structural model, can be provided by economic theory.These restrictions can be either contemporaneous or long-run in nature depending on whether the underlying disturbances are considered to be temporary or permanent in nature. Once the identification is achieved it is possible to recover the structural shocks. These shocks can then be used to generate impulse response and variance decomposition functions to assess the dynamic impacts of different economic variables. In addition these functions can be used to test whether such shocks affect the economic variables as economic theory would predict so providing a check on the theory.
