@@ -26,6 +26,8 @@ Moving average models are simple covariance stationary and ergodic time series m
 
 The presence of autocorrelation is one indication that an ARIMA model could be used to model the time series. From ACF plot, one can count number of significant autocorrelations, which is a useful estimate of the number of moving averages (MA) coefficients in the model. The plot for the wfc shows that only one MA coefficient is required.
 
+unit circle (radius 1 with x and y=+-1) and Stationarity: An ARMA model is stationary if all the zeros of the AR polynomial (x) lie outside the unit circle in the complex plane or if its AR polynomial has no zero on the unit circle. This condition also refered as the causality condition: an ARMA model is causal if all the zeros of its AR polynomial lie outside the unit circle. 
+
 
 ```{r Set_ChunkOptions, echo=FALSE}
 #Select Chunk and package options @ http://yihui.name/knitr/options
@@ -181,3 +183,4 @@ http://econweb.tamu.edu/cschulman/class/Sas%20Docs/ARIMA%20Procedure.pdf : ARIM 
 http://www.okstate.edu/sas/v7/sashtml/books/ets/chap7/sect21.htm#idxari0123 : SAS
 http://documents.software.dell.com/Statistics/Textbook/Time-Series-Analysis :Time series book
 http://people.duke.edu/~rnau/411arim3.htm (duke university)
+http://reference.wolfram.com/applications/timeseries/UsersGuideToTimeSeries/StationaryTimeSeriesModels/1.2.2.html:unit circle
