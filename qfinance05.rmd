@@ -203,3 +203,5 @@ https://onlinecourses.science.psu.edu/stat510/node/79 :Penn State
 http://support.sas.com/documentation/cdl/en/etsug/63348/HTML/default/viewer.htm#etsug_varmax_sect048.htm :SAS example
 
 http://ocw.mit.edu/courses/mathematics/18-s096-topics-in-mathematics-with-applications-in-finance-fall-2013/case-studies/MIT18_S096F13_CaseStudy5.pdf: macroeconomic VAR model
+
+http://www.scsug.org/SCSUGProceedings/2008/papers/stat/Pramod_Sambidi.pdf : SAS VARMAX
