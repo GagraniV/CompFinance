@@ -73,7 +73,10 @@ Granger Causality is a standard method to know if a varaible is useful in predic
 
 Impulse Response Function(IRFs): In univariate time series, ACF tells about the shocks decay. However, for the vector data, it can affect the other varibles in consideration. The popular way is to simulate the effect of a unit shock. 
 
-Cointegration: In situation when time series under consideration for VAR shows a temporary deviation from there long run relationship or trend, but ultimately mean reverting to this trend, the cointegration and error correction provide the tool to analyze temporary deviations from long run equlibria.
+Cointegration: In order to meet the stationarity requirments, the time series ofetn differenced. However, for time series with undelying relatinship, diffrencing can result into losing information or long-term relationship between variables. In order to keep this relationship as well as building a model of stationary varibles. This could be done by using the Vector Error Correction Model or VECM, which consist a VAR model of stationay variables along with an error correction term derived from the estimated cointegrated relationship.
+if a linear combination of two or more differenced or I(1) series is statioonaryI(0), then the series is called stationary.
+
+In situation when time series under consideration for VAR shows a temporary deviation from there long run relationship or trend, but ultimately mean reverting to this trend, the cointegration and error correction provide the tool to analyze temporary deviations from long run equlibria.
 
 Error Correction Models(ECM): An ECM is a structure, which overns short deviations from the trend.
 
